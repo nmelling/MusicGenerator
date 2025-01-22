@@ -1,3 +1,3 @@
 # MusicGenerator
 
-Test gh switching
+Test gh switching with IDE
