@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import lyrics from './lyrics'
+import lyrics from './modules/lyrics/lyrics'
 
 const app = new Hono()
 
