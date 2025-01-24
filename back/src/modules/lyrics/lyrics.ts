@@ -9,7 +9,7 @@ export async function generateLyrics (payload: TeamSong, apiKey: string | undefi
 
     const anthropic = new Anthropic({ apiKey });
 
-    const msg = await anthropic.messages.create({
+    const message: Anthropic.Message = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1000,
       temperature: 0,
@@ -27,7 +27,7 @@ export async function generateLyrics (payload: TeamSong, apiKey: string | undefi
       ],
     });
 
-    const responseContent = msg.content[0]
+    const responseContent = message.content[0]
 
     if ('text' in responseContent && typeof responseContent.text === 'string') {
       return responseContent.text
