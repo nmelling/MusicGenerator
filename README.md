@@ -38,7 +38,12 @@ Front
 
 ## Etapes
 
+Dev
+
 - [ ] Installer un linter
+- [ ] Installer un logger
+
+Prototypage
 
 - [x] Génération des paroles avec Claude
 - [x] Installation de la base de données
