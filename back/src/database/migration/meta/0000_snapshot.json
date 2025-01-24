@@ -1,0 +1,351 @@
+{
+  "id": "117d1486-a1b3-4420-9579-b7f47ef68479",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "music.category": {
+      "name": "category",
+      "schema": "music",
+      "columns": {
+        "categoryId": {
+          "name": "categoryId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "category_categoryId_seq",
+            "schema": "music",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prompt": {
+          "name": "prompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deprecated": {
+          "name": "deprecated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "music.categoryFormPivot": {
+      "name": "categoryFormPivot",
+      "schema": "music",
+      "columns": {
+        "categoryId": {
+          "name": "categoryId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "formId": {
+          "name": "formId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "categoryFormPivot_categoryId_category_categoryId_fk": {
+          "name": "categoryFormPivot_categoryId_category_categoryId_fk",
+          "tableFrom": "categoryFormPivot",
+          "tableTo": "category",
+          "schemaTo": "music",
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "categoryId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "categoryFormPivot_formId_form_formId_fk": {
+          "name": "categoryFormPivot_formId_form_formId_fk",
+          "tableFrom": "categoryFormPivot",
+          "tableTo": "form",
+          "schemaTo": "music",
+          "columnsFrom": [
+            "formId"
+          ],
+          "columnsTo": [
+            "formId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "categoryFormPivot_categoryId_formId_pk": {
+          "name": "categoryFormPivot_categoryId_formId_pk",
+          "columns": [
+            "categoryId",
+            "formId"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "music.form": {
+      "name": "form",
+      "schema": "music",
+      "columns": {
+        "formId": {
+          "name": "formId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "form_formId_seq",
+            "schema": "music",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deprecated": {
+          "name": "deprecated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "music.formQuestionPivot": {
+      "name": "formQuestionPivot",
+      "schema": "music",
+      "columns": {
+        "formId": {
+          "name": "formId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "questionId": {
+          "name": "questionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "formQuestionPivot_formId_form_formId_fk": {
+          "name": "formQuestionPivot_formId_form_formId_fk",
+          "tableFrom": "formQuestionPivot",
+          "tableTo": "form",
+          "schemaTo": "music",
+          "columnsFrom": [
+            "formId"
+          ],
+          "columnsTo": [
+            "formId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "formQuestionPivot_questionId_question_questionId_fk": {
+          "name": "formQuestionPivot_questionId_question_questionId_fk",
+          "tableFrom": "formQuestionPivot",
+          "tableTo": "question",
+          "schemaTo": "music",
+          "columnsFrom": [
+            "questionId"
+          ],
+          "columnsTo": [
+            "questionId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "formQuestionPivot_formId_questionId_pk": {
+          "name": "formQuestionPivot_formId_questionId_pk",
+          "columns": [
+            "formId",
+            "questionId"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "music.question": {
+      "name": "question",
+      "schema": "music",
+      "columns": {
+        "questionId": {
+          "name": "questionId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "question_questionId_seq",
+            "schema": "music",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "question": {
+          "name": "question",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deprecated": {
+          "name": "deprecated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "auth": "auth",
+    "music": "music",
+    "order": "order"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
