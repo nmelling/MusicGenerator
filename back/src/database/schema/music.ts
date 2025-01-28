@@ -63,15 +63,15 @@ export const musicFormQuestionPivot = musicSchema.table(
   }),
 );
 
-export const categoryFormRelations = relations(musicCategory, ({ many }) => ({
+export const categoryFormRelation = relations(musicCategory, ({ many }) => ({
   forms: many(musicCategoryFormPivot),
 }));
 
-export const formCategoryRelations = relations(musicForm, ({ many }) => ({
+export const formCategoryRelation = relations(musicForm, ({ many }) => ({
   categories: many(musicCategoryFormPivot),
 }));
 
-export const categoryFormPivotRelations = relations(musicCategoryFormPivot, ({ one }) => ({
+export const categoryFormPivotRelation = relations(musicCategoryFormPivot, ({ one }) => ({
   category: one(musicCategory, {
     fields: [musicCategoryFormPivot.categoryId],
     references: [musicCategory.categoryId],
@@ -82,15 +82,15 @@ export const categoryFormPivotRelations = relations(musicCategoryFormPivot, ({ o
   }),
 }));
 
-export const formQuestionRelations = relations(musicForm, ({ many }) => ({
+export const formQuestionRelation = relations(musicForm, ({ many }) => ({
   questions: many(musicFormQuestionPivot),
 }));
 
-export const questionFormRelations = relations(musicQuestion, ({ many }) => ({
+export const questionFormRelation = relations(musicQuestion, ({ many }) => ({
   forms: many(musicCategoryFormPivot),
 }));
 
-export const formQuestionPivotRelations = relations(musicFormQuestionPivot, ({ one }) => ({
+export const formQuestionPivotRelation = relations(musicFormQuestionPivot, ({ one }) => ({
   question: one(musicQuestion, {
     fields: [musicFormQuestionPivot.questionId],
     references: [musicQuestion.questionId],
