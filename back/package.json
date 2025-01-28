@@ -8,6 +8,7 @@
     "@anthropic-ai/sdk": "^0.35.0",
     "drizzle-orm": "^0.38.4",
     "hono": "^4.6.17",
+    "nanoid": "^5.0.9",
     "pg": "^8.13.1"
   },
   "devDependencies": {
