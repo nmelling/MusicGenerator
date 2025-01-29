@@ -74,6 +74,8 @@ export const musicFormQuestionPivot = musicSchema.table(
   })
 )
 
+// Relations
+
 export const categoryOrderRelation = relations(musicCategory, ({ many }) => ({
   orders: many(order),
 }))
