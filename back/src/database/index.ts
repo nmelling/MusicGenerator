@@ -22,13 +22,15 @@ const db = drizzle(pool, {
   },
 })
 
-try {
-  await migrate(db, {
-    migrationsFolder: path.join(path.dirname(__filename), './migration'),
-  })
-} catch (err) {
-  console.error(err) // use a real logger later
-  process.exit(1)
+export async function migrateDb(): Promise<void> {
+  try {
+    await migrate(db, {
+      migrationsFolder: path.join(path.dirname(__filename), './migration'),
+    })
+  } catch (err) {
+    console.error(err) // use a real logger later
+    process.exit(1)
+  }
 }
 
 export default db
