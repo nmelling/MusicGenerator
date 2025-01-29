@@ -1,8 +1,6 @@
-import {
-  pgSchema,
-} from "drizzle-orm/pg-core";
+import { pgSchema } from 'drizzle-orm/pg-core'
 
-export const authSchema = pgSchema('auth');
+export const authSchema = pgSchema('auth')
 
 /*
   1. Admin.

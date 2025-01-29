@@ -102,12 +102,8 @@
           "tableFrom": "categoryFormPivot",
           "tableTo": "category",
           "schemaTo": "music",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "categoryId"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["categoryId"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -116,12 +112,8 @@
           "tableFrom": "categoryFormPivot",
           "tableTo": "form",
           "schemaTo": "music",
-          "columnsFrom": [
-            "formId"
-          ],
-          "columnsTo": [
-            "formId"
-          ],
+          "columnsFrom": ["formId"],
+          "columnsTo": ["formId"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -129,10 +121,7 @@
       "compositePrimaryKeys": {
         "categoryFormPivot_categoryId_formId_pk": {
           "name": "categoryFormPivot_categoryId_formId_pk",
-          "columns": [
-            "categoryId",
-            "formId"
-          ]
+          "columns": ["categoryId", "formId"]
         }
       },
       "uniqueConstraints": {},
@@ -226,12 +215,8 @@
           "tableFrom": "formQuestionPivot",
           "tableTo": "form",
           "schemaTo": "music",
-          "columnsFrom": [
-            "formId"
-          ],
-          "columnsTo": [
-            "formId"
-          ],
+          "columnsFrom": ["formId"],
+          "columnsTo": ["formId"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -240,12 +225,8 @@
           "tableFrom": "formQuestionPivot",
           "tableTo": "question",
           "schemaTo": "music",
-          "columnsFrom": [
-            "questionId"
-          ],
-          "columnsTo": [
-            "questionId"
-          ],
+          "columnsFrom": ["questionId"],
+          "columnsTo": ["questionId"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -253,10 +234,7 @@
       "compositePrimaryKeys": {
         "formQuestionPivot_formId_questionId_pk": {
           "name": "formQuestionPivot_formId_questionId_pk",
-          "columns": [
-            "formId",
-            "questionId"
-          ]
+          "columns": ["formId", "questionId"]
         }
       },
       "uniqueConstraints": {},
@@ -373,12 +351,8 @@
           "tableFrom": "answer",
           "tableTo": "question",
           "schemaTo": "music",
-          "columnsFrom": [
-            "questionId"
-          ],
-          "columnsTo": [
-            "questionId"
-          ],
+          "columnsFrom": ["questionId"],
+          "columnsTo": ["questionId"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -435,12 +409,8 @@
           "tableFrom": "order",
           "tableTo": "category",
           "schemaTo": "music",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "categoryId"
-          ],
+          "columnsFrom": ["categoryId"],
+          "columnsTo": ["categoryId"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
