@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1738153348346,
+      "when": 1738160863904,
       "tag": "0000_init",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1738156034911,
-      "tag": "0001_seed-music-configuration",
       "breakpoints": true
     }
   ]

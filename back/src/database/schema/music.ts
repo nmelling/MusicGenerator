@@ -36,8 +36,10 @@ export const musicForm = musicSchema.table('form', {
 
 export const musicQuestion = musicSchema.table('question', {
   questionId: integer().primaryKey().generatedAlwaysAsIdentity(),
-  question: varchar({ length: 50 }).notNull(),
+  question: varchar({ length: 255 }).notNull(),
   placeholder: varchar({ length: 50 }),
+  isRequired: boolean().default(false),
+  position: integer().notNull(),
   deprecated: boolean().default(false),
   ...timestamps,
 })

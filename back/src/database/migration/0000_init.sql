@@ -38,8 +38,10 @@ CREATE TABLE "music"."formQuestionPivot" (
 --> statement-breakpoint
 CREATE TABLE "music"."question" (
 	"questionId" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "music"."question_questionId_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"question" varchar(50) NOT NULL,
+	"question" varchar(255) NOT NULL,
 	"placeholder" varchar(50),
+	"isRequired" boolean DEFAULT false,
+	"position" integer NOT NULL,
 	"deprecated" boolean DEFAULT false,
 	"updated_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,

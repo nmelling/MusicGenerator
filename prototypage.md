@@ -9,6 +9,7 @@
 - [x] Installation de la base de données
 - [x] Définition du schéma de DB
 - [ ] Création d'une base front Vue3 + HonoClient
+- [ ] Création de la base API back pour servir toutes les catégories de musique sélectionnables
 - [ ] Prototypage d'une page front pour afficher la liste des catégories de musique
 - [ ] Prototypage d'une page front pour afficher les questions d'une catégorie de musique
 - [ ] Brancher front & back pour déclencher un appel API générant les paroles d'une chanson

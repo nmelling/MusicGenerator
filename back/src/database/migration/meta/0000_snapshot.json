@@ -1,5 +1,5 @@
 {
-  "id": "e4f2652c-9090-405c-8eab-2213ae75cad5",
+  "id": "7b48ed2f-3828-4108-b8a4-f69ba543d1e4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -102,8 +102,12 @@
           "tableFrom": "categoryFormPivot",
           "tableTo": "category",
           "schemaTo": "music",
-          "columnsFrom": ["categoryId"],
-          "columnsTo": ["categoryId"],
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "categoryId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -112,8 +116,12 @@
           "tableFrom": "categoryFormPivot",
           "tableTo": "form",
           "schemaTo": "music",
-          "columnsFrom": ["formId"],
-          "columnsTo": ["formId"],
+          "columnsFrom": [
+            "formId"
+          ],
+          "columnsTo": [
+            "formId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -121,7 +129,10 @@
       "compositePrimaryKeys": {
         "categoryFormPivot_categoryId_formId_pk": {
           "name": "categoryFormPivot_categoryId_formId_pk",
-          "columns": ["categoryId", "formId"]
+          "columns": [
+            "categoryId",
+            "formId"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -215,8 +226,12 @@
           "tableFrom": "formQuestionPivot",
           "tableTo": "form",
           "schemaTo": "music",
-          "columnsFrom": ["formId"],
-          "columnsTo": ["formId"],
+          "columnsFrom": [
+            "formId"
+          ],
+          "columnsTo": [
+            "formId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -225,8 +240,12 @@
           "tableFrom": "formQuestionPivot",
           "tableTo": "question",
           "schemaTo": "music",
-          "columnsFrom": ["questionId"],
-          "columnsTo": ["questionId"],
+          "columnsFrom": [
+            "questionId"
+          ],
+          "columnsTo": [
+            "questionId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -234,7 +253,10 @@
       "compositePrimaryKeys": {
         "formQuestionPivot_formId_questionId_pk": {
           "name": "formQuestionPivot_formId_questionId_pk",
-          "columns": ["formId", "questionId"]
+          "columns": [
+            "formId",
+            "questionId"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -265,7 +287,7 @@
         },
         "question": {
           "name": "question",
-          "type": "varchar(50)",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -274,6 +296,19 @@
           "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false
+        },
+        "isRequired": {
+          "name": "isRequired",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "deprecated": {
           "name": "deprecated",
@@ -351,8 +386,12 @@
           "tableFrom": "answer",
           "tableTo": "question",
           "schemaTo": "music",
-          "columnsFrom": ["questionId"],
-          "columnsTo": ["questionId"],
+          "columnsFrom": [
+            "questionId"
+          ],
+          "columnsTo": [
+            "questionId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -409,8 +448,12 @@
           "tableFrom": "order",
           "tableTo": "category",
           "schemaTo": "music",
-          "columnsFrom": ["categoryId"],
-          "columnsTo": ["categoryId"],
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "categoryId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
