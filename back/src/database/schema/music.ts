@@ -8,6 +8,7 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from 'drizzle-orm';
+import { order } from './order'
 
 const timestamps = {
   updated_at: timestamp(),
@@ -62,6 +63,10 @@ export const musicFormQuestionPivot = musicSchema.table(
     pk: primaryKey({ columns: [t.formId, t.questionId] }),
   }),
 );
+
+export const categoryOrderRelation = relations(musicCategory, ({ many }) => ({
+  orders: many(order),
+}))
 
 export const categoryFormRelation = relations(musicCategory, ({ many }) => ({
   forms: many(musicCategoryFormPivot),
