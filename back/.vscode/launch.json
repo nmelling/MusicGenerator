@@ -1,0 +1,16 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "bun",
+      "request": "attach",
+      "name": "Attach Bun",
+      "url": "ws://localhost:6499/1lf1zfw3noq",
+      "stopOnEntry": false,
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}
