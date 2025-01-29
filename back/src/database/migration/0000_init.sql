@@ -46,7 +46,22 @@ CREATE TABLE "music"."question" (
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE "order"."answer" (
+	"answerId" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "order"."answer_answerId_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"questionId" integer NOT NULL,
+	"answer" text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "order"."order" (
+	"orderId" char(20) PRIMARY KEY NOT NULL,
+	"categoryId" integer NOT NULL,
+	"email" varchar(255) NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "music"."categoryFormPivot" ADD CONSTRAINT "categoryFormPivot_categoryId_category_categoryId_fk" FOREIGN KEY ("categoryId") REFERENCES "music"."category"("categoryId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "music"."categoryFormPivot" ADD CONSTRAINT "categoryFormPivot_formId_form_formId_fk" FOREIGN KEY ("formId") REFERENCES "music"."form"("formId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "music"."formQuestionPivot" ADD CONSTRAINT "formQuestionPivot_formId_form_formId_fk" FOREIGN KEY ("formId") REFERENCES "music"."form"("formId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "music"."formQuestionPivot" ADD CONSTRAINT "formQuestionPivot_questionId_question_questionId_fk" FOREIGN KEY ("questionId") REFERENCES "music"."question"("questionId") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "music"."formQuestionPivot" ADD CONSTRAINT "formQuestionPivot_questionId_question_questionId_fk" FOREIGN KEY ("questionId") REFERENCES "music"."question"("questionId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order"."answer" ADD CONSTRAINT "answer_questionId_question_questionId_fk" FOREIGN KEY ("questionId") REFERENCES "music"."question"("questionId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order"."order" ADD CONSTRAINT "order_categoryId_category_categoryId_fk" FOREIGN KEY ("categoryId") REFERENCES "music"."category"("categoryId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "email_index" ON "order"."order" USING btree ("email");
