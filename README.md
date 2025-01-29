@@ -33,25 +33,10 @@ Front
 1. Sélection d'une catégorie de musique
 2. Remplissage d'un formulaire
 3. Appel API Anthropic pour génération des paroles
-4. Appel API Suno pour génération de la musique
-5. Transmission de la musique générée à l'utilisateur
+4. Validation des paroles (Jusqu'à deux modifications possibles)
+5. Appel API Suno pour génération de la musique
+6. Transmission de la musique générée à l'utilisateur
 
-## Etapes
-
-Dev
-
-- [ ] Installer un linter
-- [ ] Installer un logger
-
-Prototypage
-
-- [x] Génération des paroles avec Claude
-- [x] Installation de la base de données
-- [ ] Définition du schéma de DB
-- [ ] Stockage de quelques config de formulaires avec prompt IA etc..
-- [ ] Utilisation d'une référence de config pour génération des lyrics
-    - Validation Zod
-    - Faire remonter le typage du formulaire avec Drizzle
 
 
 
