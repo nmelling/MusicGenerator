@@ -8,12 +8,20 @@ export async function listAvailableMusicCategories(): Promise<MusicCategory[]> {
   const musics = await db.query.musicCategory.findMany({
     with: {
       forms: {
-        columns: {},
+        columns: {
+          position: true,
+          formId: false,
+          categoryId: false,
+        },
         with: {
           form: {
             with: {
               questions: {
-                columns: {},
+                columns: {
+                  formId: false,
+                  questionId: false,
+                  position: true,
+                },
                 with: {
                   question: true,
                 },

@@ -18,6 +18,7 @@ CREATE TABLE "music"."category" (
 CREATE TABLE "music"."categoryFormPivot" (
 	"categoryId" integer NOT NULL,
 	"formId" integer NOT NULL,
+	"position" integer DEFAULT 0 NOT NULL,
 	CONSTRAINT "categoryFormPivot_categoryId_formId_pk" PRIMARY KEY("categoryId","formId")
 );
 --> statement-breakpoint
@@ -33,6 +34,7 @@ CREATE TABLE "music"."form" (
 CREATE TABLE "music"."formQuestionPivot" (
 	"formId" integer NOT NULL,
 	"questionId" integer NOT NULL,
+	"position" integer DEFAULT 0 NOT NULL,
 	CONSTRAINT "formQuestionPivot_formId_questionId_pk" PRIMARY KEY("formId","questionId")
 );
 --> statement-breakpoint
@@ -41,7 +43,6 @@ CREATE TABLE "music"."question" (
 	"question" varchar(255) NOT NULL,
 	"placeholder" varchar(50),
 	"isRequired" boolean DEFAULT false,
-	"position" integer NOT NULL,
 	"deprecated" boolean DEFAULT false,
 	"updated_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,

@@ -39,7 +39,6 @@ export const musicQuestion = musicSchema.table('question', {
   question: varchar({ length: 255 }).notNull(),
   placeholder: varchar({ length: 50 }),
   isRequired: boolean().default(false),
-  position: integer().notNull(),
   deprecated: boolean().default(false),
   ...timestamps,
 })
@@ -53,6 +52,7 @@ export const musicCategoryFormPivot = musicSchema.table(
     formId: integer()
       .notNull()
       .references(() => musicForm.formId),
+    position: integer().notNull().default(0),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.categoryId, t.formId] }),
@@ -68,6 +68,7 @@ export const musicFormQuestionPivot = musicSchema.table(
     questionId: integer()
       .notNull()
       .references(() => musicQuestion.questionId),
+    position: integer().notNull().default(0),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.formId, t.questionId] }),
