@@ -1,11 +1,17 @@
 import { Hono } from 'hono'
-import type { MusicCategory } from '../../@types/music'
+import { z } from 'zod'
 import db from '../../database/index'
 
 const app = new Hono()
 
-export async function listAvailableMusicCategories(): Promise<MusicCategory[]> {
-  const musics = await db.query.musicCategory.findMany({
+export async function listAvailableMusicCategories() {
+  // todo pagination
+  return await db.query.musicCategory.findMany()
+}
+
+export async function getMusicCategory(categoryId: number){
+  return await db.query.musicCategory.findFirst({
+    where: (musicCategory, { eq }) => eq(musicCategory.categoryId, categoryId),
     with: {
       forms: {
         columns: {
@@ -32,12 +38,21 @@ export async function listAvailableMusicCategories(): Promise<MusicCategory[]> {
       },
     },
   })
-  return musics
 }
 
 app.get('/', async (c) => {
   const musics = await listAvailableMusicCategories()
   return c.json(musics, 201)
+})
+
+app.get('/:categoryId', async (c) => {
+  const $categoryId = await c.req.param('categoryId')
+  
+  const schema = z.coerce.number().int().positive()
+  const categoryId = schema.parse($categoryId)
+
+  const musicCategory = await getMusicCategory(categoryId)
+  return c.json(musicCategory, 201)
 })
 
 export default app
