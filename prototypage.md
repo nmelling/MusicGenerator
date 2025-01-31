@@ -2,7 +2,7 @@
 
 - [x] Installer un formatter
 - [ ] Installer un logger
-- [ ] Pouvoir seed facilement un jeu de données pour le dev
+- [x] Pouvoir seed facilement un jeu de données pour le dev
 
 ## Etapes
 

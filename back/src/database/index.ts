@@ -14,13 +14,13 @@ const __filename = fileURLToPath(import.meta.url)
 class DatabaseConnector {
   private pool: Pool;
   private seeded = false;
-  public db;
+  private $db;
 
   constructor () {
     this.pool = new Pool({
       connectionString: Bun.env['DATABASE_URL']!,
     })
-    this.db = drizzle(this.pool, {
+    this.$db = drizzle(this.pool, {
       schema: {
         ...music,
         ...order,
@@ -29,7 +29,11 @@ class DatabaseConnector {
     })
   }
 
-  async migrateLatest(): Promise<void> {
+  public get db() {
+    return this.$db
+  } 
+
+  public async migrateLatest(): Promise<void> {
     try {
       await migrate(this.db, {
         migrationsFolder: path.join(path.dirname(__filename), './migration'),
@@ -40,7 +44,7 @@ class DatabaseConnector {
     }
   }
 
-  async seedRandomly (count?: number): Promise<void> {
+  public async seedRandomly (count?: number): Promise<void> {
     if (this.seeded) return
     try {
       await reset(this.db, music)
@@ -51,6 +55,8 @@ class DatabaseConnector {
   }
 }
 
-const db = new DatabaseConnector()
+const dbConnector = new DatabaseConnector()
 
-export default db
+export { dbConnector }
+
+export default dbConnector.db
