@@ -1,8 +1,8 @@
 <template>
-  Créez votre chanson
+  <main>Créez votre chanson</main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
 </script>
 
