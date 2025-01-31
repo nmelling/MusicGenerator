@@ -11,6 +11,7 @@
 - [x] Définition du schéma de DB
 - [ ] Création d'une base front Vue3 + HonoClient
 - [x] Création de la base API back pour servir toutes les catégories de musique sélectionnables
+- [ ] Utiliser Zod comme middleware pour la validation
 - [ ] Prototypage d'une page front pour afficher la liste des catégories de musique
 - [ ] Prototypage d'une page front pour afficher les questions d'une catégorie de musique
 - [ ] Brancher front & back pour déclencher un appel API générant les paroles d'une chanson
