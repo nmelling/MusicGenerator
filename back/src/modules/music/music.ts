@@ -40,12 +40,12 @@ export async function getMusicCategory(categoryId: number){
   })
 }
 
-app.get('/', async (c) => {
+const allCategories = app.get('/', async (c) => {
   const musics = await listAvailableMusicCategories()
   return c.json(musics, 201)
 })
 
-app.get('/:categoryId', async (c) => {
+const oneCategory = app.get('/category/:categoryId', async (c) => {
   const $categoryId = await c.req.param('categoryId')
   
   const schema = z.coerce.number().int().positive()
@@ -54,5 +54,8 @@ app.get('/:categoryId', async (c) => {
   const musicCategory = await getMusicCategory(categoryId)
   return c.json(musicCategory, 201)
 })
+
+export type AllCategories = typeof allCategories
+export type OneCategory = typeof oneCategory
 
 export default app
