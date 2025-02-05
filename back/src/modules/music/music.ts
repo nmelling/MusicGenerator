@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-
+import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import db from '../../database/index'
 
@@ -39,16 +39,25 @@ export async function getMusicCategory(categoryId: number){
   })
 }
 
+z.object({
+  categoryId: z.string().regex(/^\d+$/, 'Invalid categoryId').transform(Number),
+})
+
 const app = new Hono()
 .get('/category', async (c) => {
   const musics = await listAvailableMusicCategories()
   return c.json(musics, 201)
 })
-.get('/category/:categoryId', async (c) => {
-  const $categoryId = await c.req.param('categoryId')
-  
-  const schema = z.coerce.number().int().positive()
-  const categoryId = schema.parse($categoryId)
+.get(
+  '/category/:categoryId',
+  zValidator(
+    'param',
+    z.object({
+      categoryId: z.string().regex(/^\d+$/, 'Invalid categoryId').transform(Number),
+    })
+  ),
+  async (c) => {
+  const { categoryId } = c.req.valid('param')
 
   const musicCategory = await getMusicCategory(categoryId)
   return c.json(musicCategory, 201)
