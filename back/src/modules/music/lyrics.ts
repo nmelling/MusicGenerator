@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { TeamSong } from '../../@types/lyrics'
+import type { TeamSong } from '../../../../shared/types/lyrics'
 import Anthropic from '@anthropic-ai/sdk'
 
 const app = new Hono()

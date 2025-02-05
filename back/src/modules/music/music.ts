@@ -1,8 +1,7 @@
 import { Hono } from 'hono'
+
 import { z } from 'zod'
 import db from '../../database/index'
-
-const app = new Hono()
 
 export async function listAvailableMusicCategories() {
   // todo pagination
@@ -40,12 +39,12 @@ export async function getMusicCategory(categoryId: number){
   })
 }
 
-const allCategories = app.get('/', async (c) => {
+const app = new Hono()
+.get('/category', async (c) => {
   const musics = await listAvailableMusicCategories()
   return c.json(musics, 201)
 })
-
-const oneCategory = app.get('/category/:categoryId', async (c) => {
+.get('/category/:categoryId', async (c) => {
   const $categoryId = await c.req.param('categoryId')
   
   const schema = z.coerce.number().int().positive()
@@ -55,7 +54,6 @@ const oneCategory = app.get('/category/:categoryId', async (c) => {
   return c.json(musicCategory, 201)
 })
 
-export type AllCategories = typeof allCategories
-export type OneCategory = typeof oneCategory
+export type MusicRoutes = typeof app
 
 export default app
