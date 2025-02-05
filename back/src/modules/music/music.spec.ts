@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test'
-import type { MusicCategory } from '../../@types/music'
+import type { MusicCategory } from '../../../../../shared/types/music'
 
 // Init a test db? Or mock?
 // Seeding
