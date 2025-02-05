@@ -34,6 +34,6 @@ const routes = app
   .route('/lyrics', lyrics)
 
 
-export type AppType = typeof app
+export type AppType = typeof routes
 
 export default app

@@ -1,14 +1,20 @@
 <template>
-  Toutes les catégories
-{{ availableCategories }}
+  <RouterLink
+    v-for="category of availableCategories"
+    :key="category.categoryId"
+    :to="{ name: 'music-category', params: { categoryId: category.categoryId} }"
+  >
+    {{ category.name }}
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { hc } from 'hono/client'
-import type { AppType } from '../../../../shared/types/api'
+import type { MusicRoutes } from '../../../../shared/types/api'
 
-const client = hc<AppType>('http://localhost:3000/api/music')
+const client = hc<MusicRoutes>('http://localhost:3000/api/music')
 
 const availableCategories = ref([])
 
