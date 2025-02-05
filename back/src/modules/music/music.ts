@@ -39,10 +39,6 @@ export async function getMusicCategory(categoryId: number){
   })
 }
 
-z.object({
-  categoryId: z.string().regex(/^\d+$/, 'Invalid categoryId').transform(Number),
-})
-
 const app = new Hono()
 .get('/category', async (c) => {
   const musics = await listAvailableMusicCategories()
