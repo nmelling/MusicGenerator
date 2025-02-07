@@ -20,6 +20,7 @@ export async function getMusicCategory(categoryId: number){
         },
         with: {
           form: {
+            where: (form, { eq }) => eq(form.deprecated, false),
             with: {
               questions: {
                 columns: {

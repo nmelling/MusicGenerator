@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
-import type { TeamSong } from '../../../../shared/types/lyrics'
 import Anthropic from '@anthropic-ai/sdk'
+import { zValidator } from '@hono/zod-validator'
+import { z } from 'zod'
+import type { TeamSong } from '../../../../shared/types/lyrics'
 
 const app = new Hono()
 
@@ -38,10 +40,30 @@ export async function generateLyrics(
   throw new Error('Temporary  type guard check')
 }
 
-app.post('/', async (c) => {
-  const body = await c.req.json()
-  const lyrics = await generateLyrics(body, Bun.env['ANTHROPIC_API_KEY'])
-  return c.json(lyrics, 201)
-})
+app.post(
+  '/',
+  zValidator(
+    'form',
+    z.object({
+      forms: z.object({
+        formId: z.number(),
+        questions: z.object({
+          questionId: z.number(),
+          answer: z.string(),
+        }).array(),
+      }).array(),
+    })
+  ),
+  async (c) => {
+    // const body = await c.req.json()
+    const validated = c.req.valid('form')
+
+    // Fetch des prompts formulaire/question
+    // Définition d'une payload claire
+
+    const lyrics = await generateLyrics(body, Bun.env['ANTHROPIC_API_KEY'])
+    return c.json(lyrics, 201)
+  }
+)
 
 export default app
