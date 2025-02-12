@@ -4,17 +4,11 @@ import {
   varchar,
   text,
   boolean,
-  timestamp,
   primaryKey,
 } from 'drizzle-orm/pg-core'
+import timestamps from './timestamps'
 import { relations } from 'drizzle-orm'
 import { order } from './order'
-
-const timestamps = {
-  updated_at: timestamp(),
-  created_at: timestamp().defaultNow().notNull(),
-  deleted_at: timestamp(),
-}
 
 export const musicSchema = pgSchema('music')
 
@@ -30,6 +24,7 @@ export const musicCategory = musicSchema.table('category', {
 export const musicQuestion = musicSchema.table('question', {
   questionId: integer().primaryKey().generatedAlwaysAsIdentity(),
   question: varchar({ length: 255 }).notNull(),
+  prompt: text(),
   placeholder: varchar({ length: 50 }),
   isRequired: boolean().default(false),
   deprecated: boolean().default(false),
@@ -54,15 +49,12 @@ export const musicCategoryQuestionPivot = musicSchema.table(
 
 // Relations
 
-export const categoryOrderRelation = relations(musicCategory, ({ many }) => ({
+export const categoryRelations = relations(musicCategory, ({ many }) => ({
   orders: many(order),
-}))
-
-export const categoryQuestionRelation = relations(musicCategory, ({ many }) => ({
   questions: many(musicCategoryQuestionPivot),
 }))
 
-export const questionCategoryRelation = relations(musicQuestion, ({ many }) => ({
+export const questionRelations = relations(musicQuestion, ({ many }) => ({
   categories: many(musicCategoryQuestionPivot),
 }))
 

@@ -7,7 +7,7 @@
           <h2 class="text-2xl">{{ category.name }}</h2>
           <p>{{ category.description }}</p>
         </header>
-        <content>
+        <section>
           <form
             @submit.prevent="onSubmit"
           >
@@ -27,7 +27,7 @@
           </fieldset>
             <button class="btn btn-primary mt-5" type="submit">Continuez</button>
           </form>
-        </content>
+        </section>
       </template>
     </article>
   </section>
