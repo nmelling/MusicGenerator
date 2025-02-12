@@ -44,11 +44,61 @@ class DatabaseConnector {
     }
   }
 
-  public async seedRandomly (count?: number): Promise<void> {
+  public async seedRandomly (): Promise<void> {
     if (this.seeded) return
+
+    function defineIdList (count: number): number[] {
+      return new Array(count).fill(null).map((_, index) => index + 1)
+    }
+
+    const ids = {
+      musicCategory: defineIdList(5),
+      musicQuestion: defineIdList(10),
+    }
+
+    console.log(ids)
+
     try {
       await reset(this.db, music)
-      await seed(this.db, music, { count })
+      await seed(this.db, music).refine((funcs) => ({
+        musicCategory: {
+          count: 5,
+          columns: {
+            categoryId: funcs.int({
+              minValue: 1,
+              maxValue: ids.musicCategory.length,
+              isUnique: true,
+            }),
+            name: funcs.string({
+              isUnique: true,
+            }),
+            description: funcs.loremIpsum(),
+            prompt: funcs.loremIpsum(),
+            deprecated: funcs.boolean(),
+          },
+        },
+        musicQuestion: {
+          count: 10,
+          columns: {
+            questionId: funcs.int({
+              minValue: 1,
+              maxValue: ids.musicQuestion.length,
+              isUnique: true,
+            }),
+            question: funcs.loremIpsum(),
+            placeholder: funcs.string(),
+            isRequired: funcs.boolean(),
+            deprecated: funcs.boolean(),
+          }
+        },
+        musicCategoryQuestionPivot: {
+          count: 10,
+          columns: {
+            categoryId: funcs.valuesFromArray({ values: ids.musicCategory }),
+            questionId: funcs.valuesFromArray({ values: ids.musicQuestion, isUnique: true }),
+          }
+        }
+      }))
     } catch (err) {
       console.error(err) // use a real logger later
     }
