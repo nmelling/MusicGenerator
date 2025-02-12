@@ -11,25 +11,20 @@
           <form
             @submit.prevent="onSubmit"
           >
-            <fieldset
-              v-for="form of forms"
-              :key="form.formId"
-            >
-              <fieldset
-                v-for="item of form.questions"
-                :key="item.questionId"
-                class="fieldset"
-              >
-                <legend class="fieldset-legend">{{ item.question }}</legend>
-                <input
-                  v-model="item.answer"
-                  class="input"
-                  type="text"
-                  :placeholder="item.placeholder"
-                />
-                <p v-if="!item.isRequired" class="fieldset-label">Optional</p>
-              </fieldset>
-            </fieldset>
+          <fieldset
+            v-for="item of questions"
+            :key="item.questionId"
+            class="fieldset"
+          >
+            <legend class="fieldset-legend">{{ item.question }}</legend>
+            <input
+              v-model="item.answer"
+              class="input"
+              type="text"
+              :placeholder="item.placeholder"
+            />
+            <p v-if="!item.isRequired" class="fieldset-label">Optional</p>
+          </fieldset>
             <button class="btn btn-primary mt-5" type="submit">Continuez</button>
           </form>
         </content>
@@ -52,41 +47,25 @@ const route = useRoute()
 
 const client = hc<MusicRoutes>('http://localhost:3000/api/music')
 
-type Form = { formId: number, questions: Question[] }
 type Question = MusicQuestion & { answer: string }
 
 const category = ref(null)
-const forms = ref<Form[]>([])
+const questions = ref<Question[]>([])
 const loading = ref(false)
 
-function setForm () {
+function setQuestions () {
   if (!category.value) return []
 
-  const orderedForms = R.pipe(
-    category.value.forms,
+  return R.pipe(
+    category.value.questions,
     R.sortBy([R.prop('position'), 'asc']),
-    R.map(({ form }) => form),
+    R.map(({ question }) => question),
+    R.map((question: MusicQuestion) => {
+      const copy = JSON.parse(JSON.stringify(question))
+      return { ...copy, answer: '' }
+    }),
     R.filter(Boolean),
-    R.map((form): Form => {
-      const orderedQuestions = R.pipe(
-        form.questions,
-        R.sortBy([R.prop('position'), 'asc']),
-        R.map(({ question }) => question),
-        R.map((question: MusicQuestion) => {
-          const copy = JSON.parse(JSON.stringify(question))
-          return { ...copy, answer: '' }
-        }),
-        R.filter(Boolean),
-      )
-
-      return {
-        formId: form.formId,
-        questions: orderedQuestions
-      }
-    })
   )
-
-  return orderedForms
 }
 
 onMounted(async () => {
@@ -100,7 +79,7 @@ onMounted(async () => {
     if (res.ok) {
       category.value = await res.json()
     }
-    forms.value = setForm()
+    questions.value = setQuestions()
   } catch (error) {
     console.error(error)
   }
@@ -110,8 +89,7 @@ onMounted(async () => {
 
 
 async function onSubmit(): Promise<void> {
-  console.log({ questions: forms.value })
-
+  console.log({ questions: questions.value })
 }
 </script>
 

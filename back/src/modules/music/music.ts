@@ -12,28 +12,14 @@ export async function getMusicCategory(categoryId: number){
   return await db.query.musicCategory.findFirst({
     where: (musicCategory, { eq }) => eq(musicCategory.categoryId, categoryId),
     with: {
-      forms: {
+      questions: {
         columns: {
-          position: true,
           formId: false,
-          categoryId: false,
+          questionId: false,
+          position: true,
         },
         with: {
-          form: {
-            where: (form, { eq }) => eq(form.deprecated, false),
-            with: {
-              questions: {
-                columns: {
-                  formId: false,
-                  questionId: false,
-                  position: true,
-                },
-                with: {
-                  question: true,
-                },
-              },
-            },
-          },
+          question: true,
         },
       },
     },

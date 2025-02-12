@@ -1,5 +1,5 @@
 {
-  "id": "f39e9ef9-37c5-4bae-ab90-b647d7bc0a66",
+  "id": "75874e5c-539c-42f1-bc25-bb686b39c7cc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -78,143 +78,12 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "music.categoryFormPivot": {
-      "name": "categoryFormPivot",
+    "music.categoryQuestionPivot": {
+      "name": "categoryQuestionPivot",
       "schema": "music",
       "columns": {
         "categoryId": {
           "name": "categoryId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "formId": {
-          "name": "formId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "position": {
-          "name": "position",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "categoryFormPivot_categoryId_category_categoryId_fk": {
-          "name": "categoryFormPivot_categoryId_category_categoryId_fk",
-          "tableFrom": "categoryFormPivot",
-          "tableTo": "category",
-          "schemaTo": "music",
-          "columnsFrom": [
-            "categoryId"
-          ],
-          "columnsTo": [
-            "categoryId"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "categoryFormPivot_formId_form_formId_fk": {
-          "name": "categoryFormPivot_formId_form_formId_fk",
-          "tableFrom": "categoryFormPivot",
-          "tableTo": "form",
-          "schemaTo": "music",
-          "columnsFrom": [
-            "formId"
-          ],
-          "columnsTo": [
-            "formId"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "categoryFormPivot_categoryId_formId_pk": {
-          "name": "categoryFormPivot_categoryId_formId_pk",
-          "columns": [
-            "categoryId",
-            "formId"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "music.form": {
-      "name": "form",
-      "schema": "music",
-      "columns": {
-        "formId": {
-          "name": "formId",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "form_formId_seq",
-            "schema": "music",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deprecated": {
-          "name": "deprecated",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "music.formQuestionPivot": {
-      "name": "formQuestionPivot",
-      "schema": "music",
-      "columns": {
-        "formId": {
-          "name": "formId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -235,23 +104,23 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "formQuestionPivot_formId_form_formId_fk": {
-          "name": "formQuestionPivot_formId_form_formId_fk",
-          "tableFrom": "formQuestionPivot",
-          "tableTo": "form",
+        "categoryQuestionPivot_categoryId_category_categoryId_fk": {
+          "name": "categoryQuestionPivot_categoryId_category_categoryId_fk",
+          "tableFrom": "categoryQuestionPivot",
+          "tableTo": "category",
           "schemaTo": "music",
           "columnsFrom": [
-            "formId"
+            "categoryId"
           ],
           "columnsTo": [
-            "formId"
+            "categoryId"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "formQuestionPivot_questionId_question_questionId_fk": {
-          "name": "formQuestionPivot_questionId_question_questionId_fk",
-          "tableFrom": "formQuestionPivot",
+        "categoryQuestionPivot_questionId_question_questionId_fk": {
+          "name": "categoryQuestionPivot_questionId_question_questionId_fk",
+          "tableFrom": "categoryQuestionPivot",
           "tableTo": "question",
           "schemaTo": "music",
           "columnsFrom": [
@@ -265,10 +134,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "formQuestionPivot_formId_questionId_pk": {
-          "name": "formQuestionPivot_formId_questionId_pk",
+        "categoryQuestionPivot_categoryId_questionId_pk": {
+          "name": "categoryQuestionPivot_categoryId_questionId_pk",
           "columns": [
-            "formId",
+            "categoryId",
             "questionId"
           ]
         }

@@ -27,13 +27,6 @@ export const musicCategory = musicSchema.table('category', {
   ...timestamps,
 })
 
-export const musicForm = musicSchema.table('form', {
-  formId: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 50 }).notNull(),
-  deprecated: boolean().default(false),
-  ...timestamps,
-})
-
 export const musicQuestion = musicSchema.table('question', {
   questionId: integer().primaryKey().generatedAlwaysAsIdentity(),
   question: varchar({ length: 255 }).notNull(),
@@ -43,35 +36,19 @@ export const musicQuestion = musicSchema.table('question', {
   ...timestamps,
 })
 
-export const musicCategoryFormPivot = musicSchema.table(
-  'categoryFormPivot',
+export const musicCategoryQuestionPivot = musicSchema.table(
+  'categoryQuestionPivot',
   {
     categoryId: integer()
       .notNull()
       .references(() => musicCategory.categoryId),
-    formId: integer()
-      .notNull()
-      .references(() => musicForm.formId),
-    position: integer().notNull().default(0),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.categoryId, t.formId] }),
-  })
-)
-
-export const musicFormQuestionPivot = musicSchema.table(
-  'formQuestionPivot',
-  {
-    formId: integer()
-      .notNull()
-      .references(() => musicForm.formId),
     questionId: integer()
       .notNull()
       .references(() => musicQuestion.questionId),
     position: integer().notNull().default(0),
   },
   (t) => ({
-    pk: primaryKey({ columns: [t.formId, t.questionId] }),
+    pk: primaryKey({ columns: [t.categoryId, t.questionId] }),
   })
 )
 
@@ -81,46 +58,24 @@ export const categoryOrderRelation = relations(musicCategory, ({ many }) => ({
   orders: many(order),
 }))
 
-export const categoryFormRelation = relations(musicCategory, ({ many }) => ({
-  forms: many(musicCategoryFormPivot),
+export const categoryQuestionRelation = relations(musicCategory, ({ many }) => ({
+  questions: many(musicCategoryQuestionPivot),
 }))
 
-export const formCategoryRelation = relations(musicForm, ({ many }) => ({
-  categories: many(musicCategoryFormPivot),
+export const questionCategoryRelation = relations(musicQuestion, ({ many }) => ({
+  categories: many(musicCategoryQuestionPivot),
 }))
 
-export const categoryFormPivotRelation = relations(
-  musicCategoryFormPivot,
+export const categoryQuestionPivotRelation = relations(
+  musicCategoryQuestionPivot,
   ({ one }) => ({
-    category: one(musicCategory, {
-      fields: [musicCategoryFormPivot.categoryId],
-      references: [musicCategory.categoryId],
-    }),
-    form: one(musicForm, {
-      fields: [musicCategoryFormPivot.formId],
-      references: [musicForm.formId],
-    }),
-  })
-)
-
-export const formQuestionRelation = relations(musicForm, ({ many }) => ({
-  questions: many(musicFormQuestionPivot),
-}))
-
-export const questionFormRelation = relations(musicQuestion, ({ many }) => ({
-  forms: many(musicCategoryFormPivot),
-}))
-
-export const formQuestionPivotRelation = relations(
-  musicFormQuestionPivot,
-  ({ one }) => ({
-    question: one(musicQuestion, {
-      fields: [musicFormQuestionPivot.questionId],
+    musicQuestion: one(musicQuestion, {
+      fields: [musicCategoryQuestionPivot.questionId],
       references: [musicQuestion.questionId],
     }),
-    form: one(musicForm, {
-      fields: [musicFormQuestionPivot.formId],
-      references: [musicForm.formId],
+    musicCategory: one(musicCategory, {
+      fields: [musicCategoryQuestionPivot.categoryId],
+      references: [musicCategory.categoryId],
     }),
   })
 )
