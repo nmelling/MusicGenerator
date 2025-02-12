@@ -2,7 +2,7 @@
   "name": "back",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "debug": "bun run --inspect --hot src/index.ts"
+    "debug": "bun run --inspect=4000 --hot src/index.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.35.0",

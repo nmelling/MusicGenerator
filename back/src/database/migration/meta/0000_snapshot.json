@@ -1,5 +1,5 @@
 {
-  "id": "f7503ca6-b579-4c20-9b47-f48bc965f2d4",
+  "id": "1438a4e5-4a30-445b-9073-e5cabede9e04",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -336,6 +336,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "deprecated": {
+          "name": "deprecated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",
