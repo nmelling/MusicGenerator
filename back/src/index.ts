@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception'
 
 import { dbConnector } from './database'
 import music from './modules/music/music'
-import lyrics from './modules/music/lyrics'
+import order from './modules/order/order'
 
 await dbConnector.migrateLatest()
 if (Bun.env['NODE_ENV'] === 'development') await dbConnector.seedRandomly()
@@ -31,7 +31,7 @@ app.onError((err, c) => {
 
 const routes = app
   .route('/music', music)
-  .route('/lyrics', lyrics)
+  .route('/order', order)
 
 
 export type AppType = typeof routes
