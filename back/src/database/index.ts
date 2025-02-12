@@ -15,11 +15,22 @@ class DatabaseConnector {
   private pool: Pool
   private seeded = false
   private $db
+  private $schemas: {
+    music: typeof music;
+    order: typeof order;
+    auth: typeof auth;
+  }
 
   constructor() {
     this.pool = new Pool({
       connectionString: Bun.env['DATABASE_URL']!,
     })
+    this.$schemas = {
+      music,
+      order,
+      auth,
+    }
+
     this.$db = drizzle(this.pool, {
       schema: {
         ...music,
@@ -31,6 +42,10 @@ class DatabaseConnector {
 
   public get db() {
     return this.$db
+  }
+
+  public get schemas() {
+    return this.$schemas
   }
 
   public async migrateLatest(): Promise<void> {
