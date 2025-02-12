@@ -36,6 +36,7 @@ CREATE TABLE "music"."question" (
 --> statement-breakpoint
 CREATE TABLE "order"."answer" (
 	"answerId" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "order"."answer_answerId_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"orderId" char(20) NOT NULL,
 	"questionId" integer NOT NULL,
 	"answer" text NOT NULL,
 	"updated_at" timestamp,
@@ -64,6 +65,7 @@ CREATE TABLE "order"."order" (
 --> statement-breakpoint
 ALTER TABLE "music"."categoryQuestionPivot" ADD CONSTRAINT "categoryQuestionPivot_categoryId_category_categoryId_fk" FOREIGN KEY ("categoryId") REFERENCES "music"."category"("categoryId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "music"."categoryQuestionPivot" ADD CONSTRAINT "categoryQuestionPivot_questionId_question_questionId_fk" FOREIGN KEY ("questionId") REFERENCES "music"."question"("questionId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order"."answer" ADD CONSTRAINT "answer_orderId_order_orderId_fk" FOREIGN KEY ("orderId") REFERENCES "order"."order"("orderId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order"."answer" ADD CONSTRAINT "answer_questionId_question_questionId_fk" FOREIGN KEY ("questionId") REFERENCES "music"."question"("questionId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order"."lyrics" ADD CONSTRAINT "lyrics_orderId_order_orderId_fk" FOREIGN KEY ("orderId") REFERENCES "order"."order"("orderId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order"."order" ADD CONSTRAINT "order_categoryId_category_categoryId_fk" FOREIGN KEY ("categoryId") REFERENCES "music"."category"("categoryId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

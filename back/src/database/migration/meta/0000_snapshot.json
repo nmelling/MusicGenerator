@@ -1,5 +1,5 @@
 {
-  "id": "1438a4e5-4a30-445b-9073-e5cabede9e04",
+  "id": "76e52d0e-11e3-46db-b2c5-d9cc50c3cbed",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -249,6 +249,12 @@
             "cycle": false
           }
         },
+        "orderId": {
+          "name": "orderId",
+          "type": "char(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "questionId": {
           "name": "questionId",
           "type": "integer",
@@ -283,6 +289,20 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "answer_orderId_order_orderId_fk": {
+          "name": "answer_orderId_order_orderId_fk",
+          "tableFrom": "answer",
+          "tableTo": "order",
+          "schemaTo": "order",
+          "columnsFrom": [
+            "orderId"
+          ],
+          "columnsTo": [
+            "orderId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "answer_questionId_question_questionId_fk": {
           "name": "answer_questionId_question_questionId_fk",
           "tableFrom": "answer",
