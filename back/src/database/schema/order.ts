@@ -6,8 +6,9 @@ import {
   pgSchema,
   text,
   varchar,
+  boolean,
 } from 'drizzle-orm/pg-core'
-import { relations } from 'drizzle-orm'
+import { relations, type InferSelectModel } from 'drizzle-orm'
 
 import { musicQuestion, musicCategory } from './music'
 import timestamps from './timestamps'
@@ -41,6 +42,7 @@ export const lyrics = orderSchema.table(
       .notNull()
       .references(() => order.orderId),
     lyrics: text().notNull(),
+    deprecated: boolean().default(false),
     ...timestamps,
   },
   (table) => {
@@ -52,6 +54,9 @@ export const lyrics = orderSchema.table(
 
 export const answer = orderSchema.table('answer', {
   answerId: integer().primaryKey().generatedAlwaysAsIdentity(),
+  orderId: char({ length: 20 })
+      .notNull()
+      .references(() => order.orderId),
   questionId: integer()
     .notNull()
     .references(() => musicQuestion.questionId),
@@ -64,13 +69,18 @@ export const orderRelations = relations(order, ({ one, many }) => ({
     fields: [order.categoryId],
     references: [musicCategory.categoryId],
   }),
-  lyrics: many(lyrics)
+  lyrics: many(lyrics),
+  answers: many(answer),
 }))
 
 export const answerRelations = relations(answer, ({ one }) =>({
   question: one(musicQuestion, {
     fields: [answer.questionId],
     references: [musicQuestion.questionId],
+  }),
+  order: one(order, {
+    fields: [answer.orderId],
+    references: [order.orderId],
   }),
 }))
 
@@ -80,5 +90,14 @@ export const lyricsRelations = relations(lyrics, ({ one }) => ({
     references: [order.orderId],
   })
 }))
+
+
+export type Order = InferSelectModel<typeof order>
+export type Lyrics = InferSelectModel<typeof lyrics>
+export type Answer = InferSelectModel<typeof answer>
+export type AggregatedOrder = Order & {
+  lyrics?: Lyrics[]
+  answers?: Answer[]
+}
 
 // TODO: A définir plus tard, table pour stocker les infos liées au paiement

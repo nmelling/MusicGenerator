@@ -6,8 +6,8 @@ import {
   boolean,
   primaryKey,
 } from 'drizzle-orm/pg-core'
+import { relations, type InferSelectModel } from 'drizzle-orm'
 import timestamps from './timestamps'
-import { relations } from 'drizzle-orm'
 import { order } from './order'
 
 export const musicSchema = pgSchema('music')
@@ -71,5 +71,12 @@ export const categoryQuestionPivotRelation = relations(
     }),
   })
 )
+
+export type MusicCategory = InferSelectModel<typeof musicCategory>
+export type MusicQuestion = InferSelectModel<typeof musicQuestion>
+export type MusicCategoryQuestionPivot = InferSelectModel<typeof musicCategoryQuestionPivot>
+export type AggregatedCategory = MusicCategory & {
+  questions?: MusicQuestion[]
+}
 
 // Peut-être ajouter de vraies tables de logs, à voir après prototypage
