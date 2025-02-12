@@ -14,7 +14,7 @@ export async function getMusicCategory(categoryId: number){
     with: {
       questions: {
         columns: {
-          formId: false,
+          categoryId: false,
           questionId: false,
           position: true,
         },

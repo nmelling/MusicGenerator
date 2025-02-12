@@ -69,11 +69,11 @@ export const questionCategoryRelation = relations(musicQuestion, ({ many }) => (
 export const categoryQuestionPivotRelation = relations(
   musicCategoryQuestionPivot,
   ({ one }) => ({
-    musicQuestion: one(musicQuestion, {
+    question: one(musicQuestion, {
       fields: [musicCategoryQuestionPivot.questionId],
       references: [musicQuestion.questionId],
     }),
-    musicCategory: one(musicCategory, {
+    category: one(musicCategory, {
       fields: [musicCategoryQuestionPivot.categoryId],
       references: [musicCategory.categoryId],
     }),

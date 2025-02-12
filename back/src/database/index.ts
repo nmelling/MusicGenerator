@@ -56,8 +56,6 @@ class DatabaseConnector {
       musicQuestion: defineIdList(10),
     }
 
-    console.log(ids)
-
     try {
       await reset(this.db, music)
       await seed(this.db, music).refine((funcs) => ({
