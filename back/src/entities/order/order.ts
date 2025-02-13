@@ -1,14 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { sql } from 'drizzle-orm'
 
-
 import db from '@/database/index'
 import { dbConnector } from '@/database/index'
 import type { AggregatedOrder, Lyrics } from '@/database/schema/order'
 import type { AnswerPayload, LyricsPayload } from '@/modules/order/validation'
 class Order {
-  $orderId: string;
-  $order: AggregatedOrder | null;
+  private $orderId: string;
+  private $order: AggregatedOrder | null;
 
   constructor(orderId?: string) {
     this.$orderId = orderId || ''
@@ -17,16 +16,7 @@ class Order {
     if (orderId) this.init()
   }
 
-  get order () {
-    return this.$order
-  }
-
-  get lyrics (): Lyrics | null {
-    if (!this.$order || !this.$order.lyrics) return null
-    return this.$order.lyrics.find((item) => !item.deprecated) || null
-  }
-
-  public async init () {
+  private async init (): Promise<AggregatedOrder> {
     if (!this.$orderId) throw new Error('NO_ORDER_ID')
     
     const order = await db.query.order.findFirst({
@@ -43,7 +33,7 @@ class Order {
     return order
   }
 
-  async createNewOrder (email: string, categoryId: number, answers: AnswerPayload[]): Promise<string> {
+  public async createNewOrder (email: string, categoryId: number, answers: AnswerPayload[]): Promise<string> {
     const { order: orderSchema } = dbConnector.schemas
 
     const order = await db.transaction(async (trx) => {
@@ -65,7 +55,12 @@ class Order {
 
     if (!order) throw new Error('ORDER_NOT_GENERATED')
 
-    this.$order = order
+    this.$order = {
+      ...order,
+      lyrics: [],
+      answers: [],
+    }
+
     return order.orderId
   }
 
@@ -128,6 +123,15 @@ class Order {
     if (!activeLyrics) throw new Error('NO_ACTIVE_LYRICS')
 
     return activeLyrics
+  }
+
+  get order () {
+    return this.init()
+  }
+
+  get lyrics (): Lyrics | null {
+    if (!this.$order || !this.$order.lyrics) return null
+    return this.$order.lyrics.find((item) => !item.deprecated) || null
   }
 }
 
