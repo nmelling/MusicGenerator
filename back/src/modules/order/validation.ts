@@ -5,4 +5,13 @@ export const answerSchema = z.object({
   answer: z.string(),
 })
 
+export const lyricsPayloadSchema = z.object({
+  systemPrompt: z.string(),
+  answers: z.object({
+    prompt: z.string(),
+    answer: z.string(),
+  }).array()
+})
+
+export type LyricsPayload = z.infer<typeof lyricsPayloadSchema>
 export type AnswerPayload = z.infer<typeof answerSchema>

@@ -1,9 +1,11 @@
-import { pick } from 'remeda'
+import Anthropic from '@anthropic-ai/sdk'
+import { sql } from 'drizzle-orm'
+
+
 import db from '@/database/index'
 import { dbConnector } from '@/database/index'
-import type { AggregatedOrder } from '@/database/schema/order'
-import type { AnswerPayload } from '@/modules/order/validation'
-
+import type { AggregatedOrder, Lyrics } from '@/database/schema/order'
+import type { AnswerPayload, LyricsPayload } from '@/modules/order/validation'
 class Order {
   $orderId: string;
   $order: AggregatedOrder | null;
@@ -12,14 +14,19 @@ class Order {
     this.$orderId = orderId || ''
     this.$order = null
 
-    if (orderId) this.initOrder()
+    if (orderId) this.init()
   }
 
   get order () {
     return this.$order
   }
 
-  public async initOrder () {
+  get lyrics (): Lyrics | null {
+    if (!this.$order || !this.$order.lyrics) return null
+    return this.$order.lyrics.find((item) => !item.deprecated) || null
+  }
+
+  public async init () {
     if (!this.$orderId) throw new Error('NO_ORDER_ID')
     
     const order = await db.query.order.findFirst({
@@ -30,7 +37,7 @@ class Order {
       }
     })
 
-    if (!order) throw new Error('ORDER_NOt_FOUND')
+    if (!order) throw new Error('ORDER_NOT_FOUND')
     this.$order = order
 
     return order
@@ -60,6 +67,67 @@ class Order {
 
     this.$order = order
     return order.orderId
+  }
+
+  public async generateLyrics (
+    payload: LyricsPayload,
+  ): Promise<Lyrics> {
+    const apiKey = Bun.env['ANTHROPIC_API_KEY']
+    if (!apiKey) throw new Error('MISSING_API_KEY')
+
+    const anthropic = new Anthropic({ apiKey })
+
+    let generatedLyics = ''
+
+    try {
+      const message: Anthropic.Message = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1000,
+        temperature: 0,
+        system: payload.systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n'),
+              },
+            ],
+          },
+        ],
+      })
+
+      const responseContent = message.content[0]
+      if ('text' in responseContent && typeof responseContent.text === 'string') generatedLyics = responseContent.text
+    } catch (err) {
+      // todo logger
+      throw new Error(`LYRICS_GENERATION_ERROR: ${JSON.stringify(err)}`)
+    }
+
+    if (!generatedLyics) throw new Error('LYRICS_GENERATION_EMPTY')
+
+    const { order } = dbConnector.schemas
+
+    const lyrics = await db.transaction(async (trx) => {
+      await trx.update(order.lyrics)
+        .set({ deprecated: true })
+        .where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+
+      await trx.insert(order.lyrics)
+        .values({ orderId: this.$orderId, lyrics: generatedLyics })
+
+      const lyrics = trx.select().from(order.lyrics).where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+
+      return lyrics
+    })
+
+    if (this.$order) this.$order.lyrics = lyrics
+
+    const activeLyrics = lyrics.find((item) => !item.deprecated)
+    if (!activeLyrics) throw new Error('NO_ACTIVE_LYRICS')
+
+    return activeLyrics
   }
 }
 

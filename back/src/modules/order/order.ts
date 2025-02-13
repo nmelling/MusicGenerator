@@ -1,7 +1,6 @@
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
-import Lyrics from '@/entities/lyrics/lyrics'
 import Order from '@/entities/order/order'
 import { getMusicCategory } from '@/modules/music/music'
 import { answerSchema } from './validation'
@@ -24,18 +23,26 @@ app.post(
     const { email, answers, categoryId } = validated
 
     const musicCategory = await getMusicCategory(categoryId)
+    if (!musicCategory) throw new Error('MUSIC_CATEGORY_NOT_FOUND')
     // todo vérification des questionIds (bien liés à la catégorie)
 
-    const order = new Order()
-    const orderId = await order.createNewOrder(email, categoryId, answers)
+    const $order = new Order()
 
-    const lyrics = new Lyrics(orderId)
+    try {
+      await $order.createNewOrder(email, categoryId, answers)
+      // await $order.generateLyrics({
+      //   systemPrompt: musicCategory.prompt,
+      // })
+    } catch (err) {
+      
+    }
+
     // await lyrics.generateLyrics()
     // generateLyrics
 
     // Fetch des prompts formulaire/question
     // Définition d'une payload claire
-    return c.json(lyrics, 201)
+    return c.json(order, 201)
   }
 )
 
