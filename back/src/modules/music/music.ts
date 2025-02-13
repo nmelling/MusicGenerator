@@ -1,48 +1,31 @@
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
-import { z } from 'zod'
-import db from '../../database/index'
+import Music from '@/entities/music/music'
+import db from '@/database/index'
+import { categoryIdSchema } from './validation'
 
 export async function listAvailableMusicCategories() {
   // todo pagination
   return await db.query.musicCategory.findMany()
 }
 
-export async function getMusicCategory(categoryId: number){
-  return await db.query.musicCategory.findFirst({
-    where: (musicCategory, { eq }) => eq(musicCategory.categoryId, categoryId),
-    with: {
-      questions: {
-        columns: {
-          categoryId: false,
-          questionId: false,
-          position: true,
-        },
-        with: {
-          question: true,
-        },
-      },
-    },
-  })
-}
-
 const app = new Hono()
 .get('/category', async (c) => {
-  const musics = await listAvailableMusicCategories()
+  const musics = await Music.listAvailableCategories()
   return c.json(musics, 201)
 })
 .get(
   '/category/:categoryId',
   zValidator(
     'param',
-    z.object({
-      categoryId: z.string().regex(/^\d+$/, 'Invalid categoryId').transform(Number),
-    })
+    categoryIdSchema,
   ),
   async (c) => {
   const { categoryId } = c.req.valid('param')
 
-  const musicCategory = await getMusicCategory(categoryId)
+  const $music = new Music(categoryId)
+  const musicCategory = await $music.category
+
   return c.json(musicCategory, 201)
 })
 
