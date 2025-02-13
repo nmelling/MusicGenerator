@@ -96,8 +96,8 @@ export type Order = InferSelectModel<typeof order>
 export type Lyrics = InferSelectModel<typeof lyrics>
 export type Answer = InferSelectModel<typeof answer>
 export type AggregatedOrder = Order & {
-  lyrics?: Lyrics[]
-  answers?: Answer[]
+  lyrics: Lyrics[]
+  answers: Answer[]
 }
 
 // TODO: A définir plus tard, table pour stocker les infos liées au paiement

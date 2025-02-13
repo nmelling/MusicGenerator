@@ -76,7 +76,7 @@ export type MusicCategory = InferSelectModel<typeof musicCategory>
 export type MusicQuestion = InferSelectModel<typeof musicQuestion>
 export type MusicCategoryQuestionPivot = InferSelectModel<typeof musicCategoryQuestionPivot>
 export type AggregatedCategory = MusicCategory & {
-  questions?: MusicQuestion[]
+  questions: MusicQuestion[]
 }
 
 // Peut-être ajouter de vraies tables de logs, à voir après prototypage
