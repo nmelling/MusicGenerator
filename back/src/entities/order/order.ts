@@ -5,7 +5,8 @@ import { HTTPException } from 'hono/http-exception'
 import db from '@/database/index'
 import { dbConnector } from '@/database/index'
 import type { AggregatedOrder, Lyrics } from '@/database/schema/order'
-import type { AnswerPayload, LyricsPayload } from '@/modules/order/validation'
+import type { AnswerPayload } from '@/modules/order/validation'
+import { type LyricsPayload, lyricsPayloadSchema } from './validation'
 class Order {
   private $orderId: string;
   private $order: AggregatedOrder | null;
@@ -62,6 +63,8 @@ class Order {
       answers: [],
     }
 
+    this.$orderId = order.orderId
+
     return order.orderId
   }
 
@@ -71,6 +74,9 @@ class Order {
     const apiKey = Bun.env['ANTHROPIC_API_KEY']
     if (!apiKey) throw new HTTPException(400, { message: 'MISSING_API_KEY' })
 
+    const { success } = lyricsPayloadSchema.safeParse(payload)
+    if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+ 
     const anthropic = new Anthropic({ apiKey })
 
     let generatedLyics = ''
@@ -105,18 +111,25 @@ class Order {
 
     const { order } = dbConnector.schemas
 
-    const lyrics = await db.transaction(async (trx) => {
-      await trx.update(order.lyrics)
-        .set({ deprecated: true })
-        .where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+    let lyrics: Lyrics[] = []
 
-      await trx.insert(order.lyrics)
-        .values({ orderId: this.$orderId, lyrics: generatedLyics })
-
-      const lyrics = trx.select().from(order.lyrics).where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
-
-      return lyrics
-    })
+    try {
+      lyrics = await db.transaction(async (trx) => {
+        await trx.update(order.lyrics)
+          .set({ deprecated: true })
+          .where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+  
+        await trx.insert(order.lyrics)
+          .values({ orderId: this.$orderId, lyrics: generatedLyics })
+  
+        const lyrics = await trx.select().from(order.lyrics).where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+  
+        return lyrics
+      })
+    } catch (err) {
+      // todo: logger
+      throw new HTTPException(500, { message: 'LYRICS_STORAGE_ERROR'})
+    }
 
     if (this.$order) this.$order.lyrics = lyrics
 
