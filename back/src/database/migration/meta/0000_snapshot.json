@@ -1,5 +1,5 @@
 {
-  "id": "76e52d0e-11e3-46db-b2c5-d9cc50c3cbed",
+  "id": "37143942-c6c7-4f08-be59-98d6ba2852eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -178,7 +178,7 @@
           "name": "prompt",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "placeholder": {
           "name": "placeholder",

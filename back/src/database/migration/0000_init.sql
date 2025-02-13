@@ -25,7 +25,7 @@ CREATE TABLE "music"."categoryQuestionPivot" (
 CREATE TABLE "music"."question" (
 	"questionId" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "music"."question_questionId_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"question" varchar(255) NOT NULL,
-	"prompt" text,
+	"prompt" text NOT NULL,
 	"placeholder" varchar(50),
 	"isRequired" boolean DEFAULT false,
 	"deprecated" boolean DEFAULT false,

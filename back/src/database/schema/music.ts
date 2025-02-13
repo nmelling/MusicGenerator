@@ -24,7 +24,7 @@ export const musicCategory = musicSchema.table('category', {
 export const musicQuestion = musicSchema.table('question', {
   questionId: integer().primaryKey().generatedAlwaysAsIdentity(),
   question: varchar({ length: 255 }).notNull(),
-  prompt: text(),
+  prompt: text().notNull(),
   placeholder: varchar({ length: 50 }),
   isRequired: boolean().default(false),
   deprecated: boolean().default(false),
