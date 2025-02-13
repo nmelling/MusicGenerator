@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
-import { z } from 'zod'
 import { HTTPException } from 'hono/http-exception'
+import * as R from 'remeda'
 
 import Order from '@/entities/order/order'
 import Music from '@/entities/music/music'
-import { answerSchema } from './validation'
+import { newOrderSchema } from './validation'
 
 
 const app = new Hono()
@@ -14,11 +14,7 @@ app.post(
   '/',
   zValidator(
     'json',
-    z.object({
-      answers: answerSchema.array(),
-      email: z.string(),
-      categoryId: z.number().int().positive(),
-    })
+    newOrderSchema,
   ),
   async (c) => {
     const validated = c.req.valid('json')
@@ -27,25 +23,28 @@ app.post(
     const $music = new Music(categoryId)
     const musicCategory = await $music.category
     if (!musicCategory) throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
-    // todo vérification des questionIds (bien liés à la catégorie)
+
+    const aggregatedAnswers = await $music.checkAndAssignAnswers(answers)
+    const formattedAnswers = R.pipe(
+      aggregatedAnswers,
+      R.map((item) => R.pick(item, ['prompt', 'answer'])),
+    )
 
     const $order = new Order()
-
+  
     try {
       await $order.createNewOrder(email, categoryId, answers)
-      // await $order.generateLyrics({
-      //   systemPrompt: musicCategory.prompt,
-      // })
+
+      await $order.generateLyrics({
+        systemPrompt: musicCategory.prompt,
+        answers: formattedAnswers,
+      })
     } catch (err) {
       // TODO: logger
       throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
     }
 
-    // await lyrics.generateLyrics()
-    // generateLyrics
-
-    // Fetch des prompts formulaire/question
-    // Définition d'une payload claire
+    const order = await $order.order
     return c.json(order, 201)
   }
 )
