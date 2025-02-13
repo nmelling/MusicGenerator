@@ -17,8 +17,7 @@ class Music {
 
   private async init (): Promise<AggregatedCategory> {
     if (!this.$categoryId) throw new HTTPException(400, { message: 'NO_CATEGORY_ID' })
-      
-      if (this.$musicCategory) return this.$musicCategory
+    if (this.$musicCategory) return this.$musicCategory
 
     const $category = await db.query.musicCategory.findFirst({
       where: (musicCategory, { eq }) => eq(musicCategory.categoryId, Number(this.$categoryId)),
