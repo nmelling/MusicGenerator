@@ -1,7 +1,8 @@
 import { HTTPException } from 'hono/http-exception'
 import * as R from 'remeda'
 import db from '@/database/index'
-import type { AggregatedCategory, MusicCategory } from '@/database/schema/music'
+import type { AggregatedCategory, MusicCategory, MusicQuestion } from '@/database/schema/music'
+import type { AnswerPayload } from '@/modules/order/validation'
 
 class Music {
   private $categoryId: number | null
@@ -63,6 +64,24 @@ class Music {
   
   get category () {
     return this.init()
+  }
+
+  public async checkAndAssignAnswers (answers: AnswerPayload[]): Promise<Array<MusicQuestion & { answer: string }>> {
+    if (!this.$musicCategory) await this.init()
+    if (!this.$musicCategory) throw new HTTPException(404, { message: 'CATEGORY_NOT_FOUND' })
+
+    const aggregatedQuestions = R.pipe(
+      this.$musicCategory.questions,
+      R.map((question) => ({
+        ...question,
+        answer: answers.find((answer) => answer.questionId)?.answer ?? '',
+      }))
+    )
+
+    const missingAnswers = R.filter(aggregatedQuestions, (item) => Boolean(item.isRequired) && !item.deprecated && !item.answer)
+    if (missingAnswers.length) throw new HTTPException(400, { message: 'MISSING_ANSWERS' }) 
+
+    return aggregatedQuestions
   }
 }
 
