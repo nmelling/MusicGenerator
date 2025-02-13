@@ -1,3 +1,4 @@
+import { HTTPException } from 'hono/http-exception'
 import * as R from 'remeda'
 import db from '@/database/index'
 import type { AggregatedCategory, MusicCategory } from '@/database/schema/music'
@@ -14,7 +15,8 @@ class Music {
   }
 
   private async init (): Promise<AggregatedCategory> {
-    if (!this.$categoryId) throw new Error('NO_CATEGORY_ID')
+    if (!this.$categoryId) throw new HTTPException(400, { message: 'NO_CATEGORY_ID' })
+      
       if (this.$musicCategory) return this.$musicCategory
 
     const $category = await db.query.musicCategory.findFirst({
@@ -33,7 +35,7 @@ class Music {
       },
     })
 
-    if (!$category) throw new Error('MUSIC_CATEGORY_NOT_FOUND')
+    if (!$category) throw new HTTPException(404, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
 
     const category: AggregatedCategory = {
       ...R.omit($category, ['questions']),

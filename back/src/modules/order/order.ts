@@ -1,8 +1,10 @@
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
+import { HTTPException } from 'hono/http-exception'
+
 import Order from '@/entities/order/order'
-import { getMusicCategory } from '@/modules/music/music'
+import Music from '@/entities/music/music'
 import { answerSchema } from './validation'
 
 
@@ -22,8 +24,9 @@ app.post(
     const validated = c.req.valid('json')
     const { email, answers, categoryId } = validated
 
-    const musicCategory = await getMusicCategory(categoryId)
-    if (!musicCategory) throw new Error('MUSIC_CATEGORY_NOT_FOUND')
+    const $music = new Music(categoryId)
+    const musicCategory = await $music.category
+    if (!musicCategory) throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
     // todo vérification des questionIds (bien liés à la catégorie)
 
     const $order = new Order()
@@ -34,7 +37,8 @@ app.post(
       //   systemPrompt: musicCategory.prompt,
       // })
     } catch (err) {
-      
+      // TODO: logger
+      throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
     }
 
     // await lyrics.generateLyrics()

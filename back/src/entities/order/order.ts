@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { sql } from 'drizzle-orm'
+import { HTTPException } from 'hono/http-exception'
 
 import db from '@/database/index'
 import { dbConnector } from '@/database/index'
@@ -17,7 +18,7 @@ class Order {
   }
 
   private async init (): Promise<AggregatedOrder> {
-    if (!this.$orderId) throw new Error('NO_ORDER_ID')
+    if (!this.$orderId) throw new HTTPException(400, { message: 'NO_ORDER_ID' })
     
     const order = await db.query.order.findFirst({
       where: (order, { eq }) => eq(order.orderId, String(this.$orderId)),
@@ -27,7 +28,7 @@ class Order {
       }
     })
 
-    if (!order) throw new Error('ORDER_NOT_FOUND')
+    if (!order) throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' })
     this.$order = order
 
     return order
@@ -53,7 +54,7 @@ class Order {
       return order
     })
 
-    if (!order) throw new Error('ORDER_NOT_GENERATED')
+    if (!order) throw new HTTPException(400, { message: 'ORDER_NOT_GENERATED' })
 
     this.$order = {
       ...order,
@@ -68,7 +69,7 @@ class Order {
     payload: LyricsPayload,
   ): Promise<Lyrics> {
     const apiKey = Bun.env['ANTHROPIC_API_KEY']
-    if (!apiKey) throw new Error('MISSING_API_KEY')
+    if (!apiKey) throw new HTTPException(400, { message: 'MISSING_API_KEY' })
 
     const anthropic = new Anthropic({ apiKey })
 
@@ -97,10 +98,10 @@ class Order {
       if ('text' in responseContent && typeof responseContent.text === 'string') generatedLyics = responseContent.text
     } catch (err) {
       // todo logger
-      throw new Error(`LYRICS_GENERATION_ERROR: ${JSON.stringify(err)}`)
+      throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
     }
 
-    if (!generatedLyics) throw new Error('LYRICS_GENERATION_EMPTY')
+    if (!generatedLyics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
 
     const { order } = dbConnector.schemas
 
@@ -120,7 +121,7 @@ class Order {
     if (this.$order) this.$order.lyrics = lyrics
 
     const activeLyrics = lyrics.find((item) => !item.deprecated)
-    if (!activeLyrics) throw new Error('NO_ACTIVE_LYRICS')
+    if (!activeLyrics) throw new HTTPException(404, { message: 'NO_ACTIVE_LYRICS' })
 
     return activeLyrics
   }
