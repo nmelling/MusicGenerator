@@ -92,10 +92,6 @@ class MockDatabaseConnector {
     return this.$db
   }
 
-  public get schemas() {
-    return this.$schemas
-  }
-
   public async migrateLatest(): Promise<void> {
     try {
       await migrate(this.db, { migrationsFolder: path.join(path.dirname(__filename), '../../database/migration') })

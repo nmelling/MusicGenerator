@@ -25,15 +25,14 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
-import { hc } from 'hono/client'
-import type { MusicRoutes } from '../../../../shared/types/api'
-
+import { ref, onMounted, type Ref } from 'vue'
+import { hc, type InferResponseType } from 'hono/client'
+import type { MusicRoutes } from '../../../../back/src/modules/music/music'
 const router = useRouter()
 
 const client = hc<MusicRoutes>('http://localhost:3000/api/music')
 
-const availableCategories = ref([])
+const availableCategories: Ref<InferResponseType<typeof client.category.$get>> = ref([])
 
 onMounted(async () => {
   const res = await client.category.$get()
