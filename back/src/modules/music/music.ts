@@ -1,13 +1,7 @@
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import Music from '@/entities/music/music'
-import db from '@/database/index'
 import { categoryIdSchema } from './validation'
-
-export async function listAvailableMusicCategories() {
-  // todo pagination
-  return await db.query.musicCategory.findMany()
-}
 
 const app = new Hono()
 .get('/category', async (c) => {
