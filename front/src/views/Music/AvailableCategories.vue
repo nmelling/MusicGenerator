@@ -13,12 +13,12 @@
           class="rounded-xl"
         />
       </figure>
-      <content class="card-body items-center text-center">
+      <section class="card-body items-center text-center">
         <h2 class="card-title">{{ category.name }}</h2>
         <!-- <p class="overflow-hidden text-ellipsis m-w-96">{{ category.description }}</p> -->
         <div class="card-actions justify-end">
         </div>
-      </content>
+      </section>
     </article>
   </section>
 </template>
@@ -26,16 +26,16 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ref, onMounted, type Ref } from 'vue'
-import { hc, type InferResponseType } from 'hono/client'
-import type { MusicRoutes } from '../../../../back/src/modules/music/music'
+import { type InferResponseType } from 'hono/client'
+import { musicClient } from '@/lib/api'
 const router = useRouter()
 
-const client = hc<MusicRoutes>('http://localhost:3000/api/music')
+type PartialCategory = InferResponseType<typeof musicClient.category.$get>
 
-const availableCategories: Ref<InferResponseType<typeof client.category.$get>> = ref([])
+const availableCategories: Ref<PartialCategory> = ref([])
 
 onMounted(async () => {
-  const res = await client.category.$get()
+  const res = await musicClient.category.$get()
   if (res.ok) {
     availableCategories.value = await res.json()
   }
