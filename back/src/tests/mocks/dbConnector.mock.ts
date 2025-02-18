@@ -48,7 +48,7 @@ const musicQuestions = new Array(10).fill(null).map((_, index) => ({
   question: musicQuestionPrompts[index],
   prompt: musicQuestionPrompts[index],
   placeholder: musicQuestionPrompts[index].slice(0, 45),
-  isRequired: index % 2 === 0,
+  isRequired: index % 5 === 0,
   deprecated: index > 8,
 }))
 
@@ -117,10 +117,16 @@ class MockDatabaseConnector {
     const inserted = await this.db.transaction(async (trx) => {
       const insertedCategories = await trx.insert(this.$schemas.music.musicCategory).values(musicCategories).returning()
       const insertedQuestions = await trx.insert(this.$schemas.music.musicQuestion).values(musicQuestions).returning()
-      const insertedCategoryQuestionPivot = await trx.insert(this.$schemas.music.musicCategoryQuestionPivot).values(insertedQuestions.map((item, index) => ({
-        categoryId: index % 2 === 0 ? insertedCategories[0].categoryId : insertedCategories[1].categoryId,
-        questionId: item.questionId,
-      }))).returning()
+      const insertedCategoryQuestionPivot = await trx.insert(this.$schemas.music.musicCategoryQuestionPivot).values([
+        ...insertedQuestions.map((item, index) => ({
+          categoryId: index % 2 === 0 ? insertedCategories[0].categoryId : insertedCategories[1].categoryId,
+          questionId: item.questionId,
+        })),
+        ...insertedQuestions.filter((item) => !item.deprecated && !item.isRequired).map((item) => ({
+          categoryId: insertedCategories[2].categoryId,
+          questionId: item.questionId,
+        }))
+      ]).returning()
 
       return {
         musicCategories: insertedCategories,

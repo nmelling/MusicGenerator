@@ -5,6 +5,8 @@ export const answerSchema = z.object({
   answer: z.string().nonempty(),
 })
 
+export const answersSchema = answerSchema.array().min(1)
+
 export const newOrderSchema = z.object({
   answers: answerSchema.array(),
   email: z.string(),
@@ -13,3 +15,4 @@ export const newOrderSchema = z.object({
 
 export type NewOrderPayload = z.infer<typeof newOrderSchema>
 export type AnswerPayload = z.infer<typeof answerSchema>
+export type AnswersPayload = z.infer<typeof answersSchema>

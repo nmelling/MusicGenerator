@@ -13,6 +13,7 @@ let insertedSeeds: InsertedTestSeed
 describe('Music category', () => {
   describe('List available categories', () => {
     test('No categories stored', async () => {
+      await dbConnector.resetAllSeeds()
       const musics = await Music.listAvailableCategories()
 
       expect(Array.isArray(musics)).toBe(true)
