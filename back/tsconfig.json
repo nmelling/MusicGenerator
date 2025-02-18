@@ -1,6 +1,7 @@
 {
   "include": ["env.d.ts", "src/**/*", "../shared/types"],
   "compilerOptions": {
+    "composite": true,
     // Enable latest features
     "lib": ["ESNext"],
     "target": "ESNext",
