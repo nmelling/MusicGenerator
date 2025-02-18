@@ -7,31 +7,26 @@ import Order from '@/entities/order/order'
 import Music from '@/entities/music/music'
 import { newOrderSchema } from './validation'
 
-
-const app = new Hono()
-
-app.post(
+const routes = new Hono().post(
   '/',
-  zValidator(
-    'json',
-    newOrderSchema,
-  ),
+  zValidator('json', newOrderSchema),
   async (c) => {
     const validated = c.req.valid('json')
     const { email, answers, categoryId } = validated
 
     const $music = new Music(categoryId)
     const musicCategory = await $music.category
-    if (!musicCategory) throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
+    if (!musicCategory)
+      throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
 
     const aggregatedAnswers = await $music.checkAndAssignAnswers(answers)
     const formattedAnswers = R.pipe(
       aggregatedAnswers,
-      R.map((item) => R.pick(item, ['prompt', 'answer'])),
+      R.map((item) => R.pick(item, ['prompt', 'answer']))
     )
 
     const $order = new Order()
-  
+
     try {
       await $order.createNewOrder(email, categoryId, answers)
 
@@ -49,4 +44,6 @@ app.post(
   }
 )
 
-export default app
+export type OrderRoutes = typeof routes
+
+export default routes
