@@ -7,6 +7,46 @@ import { dbConnector } from '@/database/index'
 import type { AggregatedOrder, Lyrics } from '@/database/schema/order'
 import type { AnswerPayload } from '@/modules/order/validation'
 import { type LyricsPayload, lyricsPayloadSchema } from './validation'
+
+export async function $generateLyrics (payload: LyricsPayload): Promise<string> {
+  const apiKey = Bun.env['ANTHROPIC_API_KEY']
+  if (!apiKey) throw new HTTPException(400, { message: 'MISSING_API_KEY' })
+
+  const { success } = lyricsPayloadSchema.safeParse(payload)
+  if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+
+  const anthropic = new Anthropic({ apiKey })
+
+  let generatedLyics = ''
+  try {
+    const message: Anthropic.Message = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 1000,
+      temperature: 0,
+      system: payload.systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n'),
+            },
+          ],
+        },
+      ],
+    })
+
+    const responseContent = message.content[0]
+    if ('text' in responseContent && typeof responseContent.text === 'string') generatedLyics = responseContent.text
+  } catch (err) {
+    // todo logger
+    throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
+  }
+
+  return generatedLyics
+}
+
 class Order {
   private $orderId: string;
   private $order: AggregatedOrder | null;
@@ -71,43 +111,8 @@ class Order {
   public async generateLyrics (
     payload: LyricsPayload,
   ): Promise<Lyrics> {
-    const apiKey = Bun.env['ANTHROPIC_API_KEY']
-    if (!apiKey) throw new HTTPException(400, { message: 'MISSING_API_KEY' })
-
-    const { success } = lyricsPayloadSchema.safeParse(payload)
-    if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
- 
-    const anthropic = new Anthropic({ apiKey })
-
-    let generatedLyics = ''
-
-    try {
-      const message: Anthropic.Message = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1000,
-        temperature: 0,
-        system: payload.systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n'),
-              },
-            ],
-          },
-        ],
-      })
-
-      const responseContent = message.content[0]
-      if ('text' in responseContent && typeof responseContent.text === 'string') generatedLyics = responseContent.text
-    } catch (err) {
-      // todo logger
-      throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
-    }
-
-    if (!generatedLyics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
+    const generatedLyrics = await $generateLyrics(payload)
+    if (!generatedLyrics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
 
     const { order } = dbConnector.schemas
 
@@ -120,7 +125,7 @@ class Order {
           .where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
   
         await trx.insert(order.lyrics)
-          .values({ orderId: this.$orderId, lyrics: generatedLyics })
+          .values({ orderId: this.$orderId, lyrics: generatedLyrics })
   
         const lyrics = await trx.select().from(order.lyrics).where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
   
