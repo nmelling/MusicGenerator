@@ -8,11 +8,9 @@ class Music {
   private $categoryId: number | null
   private $musicCategory: AggregatedCategory | null;
 
-  constructor (categoryId?: number) {
-    this.$categoryId = categoryId || null
+  constructor (categoryId: number) {
+    this.$categoryId = categoryId
     this.$musicCategory = null
-
-    if (this.$categoryId) this.init()
   }
 
   private async init (): Promise<AggregatedCategory> {

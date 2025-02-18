@@ -5,9 +5,9 @@ import { Pool } from 'pg'
 import { fileURLToPath } from 'url'
 import path from 'path'
 
-import * as music from './schema/music'
-import * as order from './schema/order'
-import * as auth from './schema/auth'
+import * as music from '@/database/schema/music'
+import * as order from '@/database/schema/order'
+import * as auth from '@/database/schema/auth'
 
 const __filename = fileURLToPath(import.meta.url)
 

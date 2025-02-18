@@ -2,9 +2,9 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
 
-import { dbConnector } from './database'
-import music from './modules/music/music'
-import order from './modules/order/order'
+import { dbConnector } from '@/database'
+import music from '@/modules/music/music'
+import order from '@/modules/order/order'
 
 await dbConnector.migrateLatest()
 if (Bun.env['NODE_ENV'] === 'development') await dbConnector.seedRandomly()
