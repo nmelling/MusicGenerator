@@ -5,9 +5,12 @@ import { reset } from 'drizzle-seed'
 import path from 'node:path'
 import { fileURLToPath } from 'url'
 
-import * as music from '@/database/schema/music'
-import * as order from '@/database/schema/order'
-import * as auth from '@/database/schema/auth'
+import type {
+  MusicCategory,
+  MusicQuestion,
+  MusicCategoryQuestionPivot,
+} from '@/database/schema/music'
+import schema from '@/database/schema/index'
 
 const __filename = fileURLToPath(import.meta.url)
 
@@ -53,38 +56,24 @@ const musicQuestions = new Array(10).fill(null).map((_, index) => ({
 }))
 
 export type InsertedTestSeed = {
-  musicCategories: music.MusicCategory[]
-  musicQuestions: music.MusicQuestion[]
-  musicCategoryQuestionPivots: music.MusicCategoryQuestionPivot[]
+  musicCategories: MusicCategory[]
+  musicQuestions: MusicQuestion[]
+  musicCategoryQuestionPivots: MusicCategoryQuestionPivot[]
 }
 
 
 class MockDatabaseConnector {
   private $db
-  private $schemas: {
-    music: typeof music;
-    order: typeof order;
-    auth: typeof auth;
-  }
+  private $schemas: typeof schema
 
   constructor() {
-    this.$schemas = {
-      music,
-      order,
-      auth,
-    }
+    this.$schemas = schema
 
     const sqlite = new PGlite();
 
     this.$db = drizzle(
       sqlite,
-      {
-        schema: {
-          ...music,
-          ...order,
-          ...auth,
-        }
-      }
+      { schema },
     )
   }
 
@@ -111,9 +100,9 @@ class MockDatabaseConnector {
     // Seed music
     await this.resetAllSeeds()
     const inserted = await this.db.transaction(async (trx) => {
-      const insertedCategories = await trx.insert(this.$schemas.music.musicCategory).values(musicCategories).returning()
-      const insertedQuestions = await trx.insert(this.$schemas.music.musicQuestion).values(musicQuestions).returning()
-      const insertedCategoryQuestionPivot = await trx.insert(this.$schemas.music.musicCategoryQuestionPivot).values([
+      const insertedCategories = await trx.insert(this.$schemas.musicCategory).values(musicCategories).returning()
+      const insertedQuestions = await trx.insert(this.$schemas.musicQuestion).values(musicQuestions).returning()
+      const insertedCategoryQuestionPivot = await trx.insert(this.$schemas.musicCategoryQuestionPivot).values([
         ...insertedQuestions.map((item, index) => ({
           categoryId: index % 2 === 0 ? insertedCategories[0].categoryId : insertedCategories[1].categoryId,
           questionId: item.questionId,

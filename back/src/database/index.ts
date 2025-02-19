@@ -6,8 +6,7 @@ import { fileURLToPath } from 'url'
 import path from 'path'
 
 import * as music from '@/database/schema/music'
-import * as order from '@/database/schema/order'
-import * as auth from '@/database/schema/auth'
+import schema from '@/database/schema/index'
 
 const __filename = fileURLToPath(import.meta.url)
 
@@ -15,28 +14,16 @@ class DatabaseConnector {
   private pool: Pool
   private seeded = false
   private $db
-  private $schemas: {
-    music: typeof music;
-    order: typeof order;
-    auth: typeof auth;
-  }
+  private $schemas: typeof schema
 
   constructor() {
     this.pool = new Pool({
       connectionString: Bun.env['DATABASE_URL']!,
     })
-    this.$schemas = {
-      music,
-      order,
-      auth,
-    }
+    this.$schemas = schema
 
     this.$db = drizzle(this.pool, {
-      schema: {
-        ...music,
-        ...order,
-        ...auth,
-      },
+      schema,
     })
   }
 
