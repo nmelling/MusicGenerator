@@ -1,1 +1,2 @@
 **/.vscode/settings.json
+back/src/database/migration/meta/*_snapshot.json
