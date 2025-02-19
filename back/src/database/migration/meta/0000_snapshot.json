@@ -1,9 +1,277 @@
 {
-  "id": "37143942-c6c7-4f08-be59-98d6ba2852eb",
+  "id": "eebe396b-0762-47e8-b537-2ed635a3f134",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "lyrics.lyrics": {
+      "name": "lyrics",
+      "schema": "lyrics",
+      "columns": {
+        "lyricsId": {
+          "name": "lyricsId",
+          "type": "char(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "orderId": {
+          "name": "orderId",
+          "type": "char(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sunoPrompt": {
+          "name": "sunoPrompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "layout": {
+          "name": "layout",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::json"
+        },
+        "deprecated": {
+          "name": "deprecated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "order_index": {
+          "name": "order_index",
+          "columns": [
+            {
+              "expression": "orderId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "lyrics_orderId_order_orderId_fk": {
+          "name": "lyrics_orderId_order_orderId_fk",
+          "tableFrom": "lyrics",
+          "tableTo": "order",
+          "schemaTo": "order",
+          "columnsFrom": [
+            "orderId"
+          ],
+          "columnsTo": [
+            "orderId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "lyrics.refrain": {
+      "name": "refrain",
+      "schema": "lyrics",
+      "columns": {
+        "refrainId": {
+          "name": "refrainId",
+          "type": "char(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "lyricsId": {
+          "name": "lyricsId",
+          "type": "char(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "refrain_lyricsId_lyrics_lyricsId_fk": {
+          "name": "refrain_lyricsId_lyrics_lyricsId_fk",
+          "tableFrom": "refrain",
+          "tableTo": "lyrics",
+          "schemaTo": "lyrics",
+          "columnsFrom": [
+            "lyricsId"
+          ],
+          "columnsTo": [
+            "lyricsId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "lyrics.systemPrompt": {
+      "name": "systemPrompt",
+      "schema": "lyrics",
+      "columns": {
+        "systemPromptId": {
+          "name": "systemPromptId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "systemPrompt_systemPromptId_seq",
+            "schema": "lyrics",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "prompt": {
+          "name": "prompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "lyrics.verse": {
+      "name": "verse",
+      "schema": "lyrics",
+      "columns": {
+        "verseId": {
+          "name": "verseId",
+          "type": "char(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "lyricsId": {
+          "name": "lyricsId",
+          "type": "char(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deprecated": {
+          "name": "deprecated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "verse_lyricsId_lyrics_lyricsId_fk": {
+          "name": "verse_lyricsId_lyrics_lyricsId_fk",
+          "tableFrom": "verse",
+          "tableTo": "lyrics",
+          "schemaTo": "lyrics",
+          "columnsFrom": [
+            "lyricsId"
+          ],
+          "columnsTo": [
+            "lyricsId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "music.category": {
       "name": "category",
       "schema": "music",
@@ -324,105 +592,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "order.lyrics": {
-      "name": "lyrics",
-      "schema": "order",
-      "columns": {
-        "lyricsId": {
-          "name": "lyricsId",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "lyrics_lyricsId_seq",
-            "schema": "order",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "orderId": {
-          "name": "orderId",
-          "type": "char(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "lyrics": {
-          "name": "lyrics",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deprecated": {
-          "name": "deprecated",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "order_index": {
-          "name": "order_index",
-          "columns": [
-            {
-              "expression": "orderId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "lyrics_orderId_order_orderId_fk": {
-          "name": "lyrics_orderId_order_orderId_fk",
-          "tableFrom": "lyrics",
-          "tableTo": "order",
-          "schemaTo": "order",
-          "columnsFrom": [
-            "orderId"
-          ],
-          "columnsTo": [
-            "orderId"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "order.order": {
       "name": "order",
       "schema": "order",
@@ -508,6 +677,7 @@
   "enums": {},
   "schemas": {
     "auth": "auth",
+    "lyrics": "lyrics",
     "music": "music",
     "order": "order"
   },

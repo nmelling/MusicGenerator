@@ -9,6 +9,7 @@ CREATE SCHEMA "order";
 CREATE TABLE "lyrics"."lyrics" (
 	"lyricsId" char(20) PRIMARY KEY NOT NULL,
 	"orderId" char(20) NOT NULL,
+	"sunoPrompt" text NOT NULL,
 	"layout" json DEFAULT '[]'::json NOT NULL,
 	"deprecated" boolean DEFAULT false,
 	"updated_at" timestamp,
