@@ -7,7 +7,7 @@ import music from '@/modules/music/music'
 import order from '@/modules/order/order'
 
 await dbConnector.migrateLatest()
-if (Bun.env['NODE_ENV'] === 'development') await dbConnector.seedRandomly()
+await dbConnector.initSeed()
 
 const app = new Hono().basePath('/api')
 
