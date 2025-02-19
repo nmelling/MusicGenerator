@@ -1,10 +1,11 @@
 import { expect, beforeEach, afterEach, test, describe, mock } from 'bun:test'
 import { HTTPException } from 'hono/http-exception'
 import anthropicMockWrapper from '@/tests/mocks/anthropic.mock'
-import { $generateLyrics } from '@/entities/order/order'
+import { $generateLyrics } from '@/entities/order/lyrics'
 
 const correctPayload = {
-  systemPrompt: 'Write an epic folk song about a warrior’s journey through a mystical land.',
+  systemPrompt: 'Write a song splitted into intro/chorus & verses',
+  musicPrompt: 'Write an epic folk song about a warrior’s journey through a mystical land.',
   answers: [
     { prompt: `The hero name is :`, answer: 'JackoLantern' },
     { prompt: 'Is he wearing an armor', answer: 'Yes' },
@@ -60,7 +61,7 @@ describe('Generate lyrics', async () => {
       }
     })
 
-    test('Payload incorrectly formatted, empty answer', async () => {
+    test('Payload incorrectly formatted, empty answer provided', async () => {
       let error
       try {
         await $generateLyrics({ systempPrompt: 'foobar', answers: [{ prompt: 'foobar', answer: '' }] } as any)
@@ -76,7 +77,7 @@ describe('Generate lyrics', async () => {
       }
     })
 
-    test('Payload incorrectly formatted, no answer', async () => {
+    test('Payload incorrectly formatted, no answer provided', async () => {
       let error
       try {
         await $generateLyrics({ systempPrompt: 'foobar', answers: [] } as any)

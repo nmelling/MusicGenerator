@@ -1,7 +1,8 @@
   import { z } from 'zod'
 
 export const lyricsPayloadSchema = z.object({
-  systemPrompt: z.string(),
+  systemPrompt: z.string().nonempty(),
+  musicPrompt: z.string().nonempty(),
   answers: z.object({
     prompt: z.string().nonempty(),
     answer: z.string().nonempty(),

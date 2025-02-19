@@ -1,51 +1,13 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { sql } from 'drizzle-orm'
 import { HTTPException } from 'hono/http-exception'
 
 import db from '@/database/index'
 import { dbConnector } from '@/database/index'
-import type { AggregatedOrder, Lyrics } from '@/database/schema/order'
+import type { AggregatedOrder } from '@/database/schema/order'
+import type { AggregatedLyrics } from '@/database/schema/lyrics'
 import type { AnswerPayload } from '@/modules/order/validation'
-import { type LyricsPayload, lyricsPayloadSchema } from './validation'
-
-export async function $generateLyrics (payload: LyricsPayload): Promise<string> {
-  const apiKey = Bun.env['ANTHROPIC_API_KEY']
-  if (!apiKey) throw new HTTPException(400, { message: 'MISSING_API_KEY' })
-
-  const { success } = lyricsPayloadSchema.safeParse(payload)
-  if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
-
-  const anthropic = new Anthropic({ apiKey })
-
-  let generatedLyics = ''
-  try {
-    const message: Anthropic.Message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
-      temperature: 0,
-      system: payload.systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n'),
-            },
-          ],
-        },
-      ],
-    })
-
-    const responseContent = message.content[0]
-    if ('text' in responseContent && typeof responseContent.text === 'string') generatedLyics = responseContent.text
-  } catch (err) {
-    // todo logger
-    throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
-  }
-
-  return generatedLyics
-}
+import { $generateLyrics } from '@/entities/order/lyrics'
+import { type LyricsPayload } from '@/entities/order/validation'
 
 class Order {
   private $orderId: string;
@@ -64,7 +26,12 @@ class Order {
     const order = await db.query.order.findFirst({
       where: (order, { eq }) => eq(order.orderId, String(this.$orderId)),
       with: {
-        lyrics: true,
+        lyrics: {
+          with: {
+            verses: true,
+            refrain: true,
+          }
+        },
         answers: true,
       }
     })
@@ -76,14 +43,12 @@ class Order {
   }
 
   public async createNewOrder (email: string, categoryId: number, answers: AnswerPayload[]): Promise<string> {
-    const { order: orderSchema } = dbConnector.schemas
-
     const order = await db.transaction(async (trx) => {
-      const [inserted] = await trx.insert(orderSchema.order)
+      const [inserted] = await trx.insert(dbConnector.schemas.order)
       .values({ email, categoryId })
       .returning()
 
-      await trx.insert(orderSchema.answer).values(answers.map((item) => ({ orderId: inserted.orderId, ...item })))
+      await trx.insert(dbConnector.schemas.answer).values(answers.map((item) => ({ orderId: inserted.orderId, ...item })))
 
       const order = trx.query.order.findFirst({
         where: (order, { eq }) => eq(order.orderId, inserted.orderId),
@@ -110,13 +75,15 @@ class Order {
 
   public async generateLyrics (
     payload: LyricsPayload,
-  ): Promise<Lyrics> {
+  ): Promise<AggregatedLyrics> {
+    const systemPrompt = await db.select().from(dbConnector.schemas.systemPrompt)
+
     const generatedLyrics = await $generateLyrics(payload)
     if (!generatedLyrics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
 
     const { order } = dbConnector.schemas
 
-    let lyrics: Lyrics[] = []
+    let lyrics: AggregatedLyrics[] = []
 
     try {
       lyrics = await db.transaction(async (trx) => {
@@ -148,7 +115,7 @@ class Order {
     return this.init()
   }
 
-  get lyrics (): Lyrics | null {
+  get lyrics (): AggregatedLyrics | null {
     if (!this.$order || !this.$order.lyrics) return null
     return this.$order.lyrics.find((item) => !item.deprecated) || null
   }
