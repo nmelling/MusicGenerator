@@ -31,7 +31,7 @@ const routes = new Hono().post(
       await $order.createNewOrder(email, categoryId, answers)
 
       await $order.generateLyrics({
-        systemPrompt: musicCategory.prompt,
+        musicPrompt: musicCategory.prompt,
         answers: formattedAnswers,
       })
     } catch (err) {

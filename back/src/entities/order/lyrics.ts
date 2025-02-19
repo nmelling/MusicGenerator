@@ -17,14 +17,21 @@ export async function $generateLyrics (payload: LyricsPayload): Promise<string> 
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1000,
       temperature: 0,
-      system: payload.systemPrompt,
+      system: `
+        ${payload.systemPrompt}
+        Sépare chaque partie de la chanson (prompt suno, intro, couplet, refrain) par '\n\n'. Assure toi que chaque partie de type 'Couplet', 'Refrain', etc commence bien par [VERSE/CHORUS/INTRO/OUTRO/...]
+      `,
       messages: [
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n'),
+              text: `
+                Tu trouveras ici les précisions concernant la chanson à générer :
+                ${payload.musicPrompt}
+                ${payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n')}
+              `,
             },
           ],
         },
@@ -39,4 +46,43 @@ export async function $generateLyrics (payload: LyricsPayload): Promise<string> 
   }
 
   return generatedLyics
+}
+
+export type ExtractedLyricParts = {
+  sunoPrompt: string,
+  verses: string[],
+  refrain: string,
+  layout: string[]
+}
+
+export function $extractLyricParts (lyrics: string): ExtractedLyricParts {
+  if (!lyrics) throw new HTTPException(400, { message: 'NO_LYRICS_PROVIDED' })
+  if (typeof lyrics !== 'string') throw new HTTPException(400, { message: 'WRONG_LYRICS_FORMAT' })
+
+  const extracted: ExtractedLyricParts = {
+    sunoPrompt: '',
+    verses: [],
+    refrain: '',
+    layout: [],
+  }
+
+  const splitted = lyrics.split('\n\n')
+  if (splitted.length === 1 && splitted[0] === lyrics) return extracted
+
+  splitted.forEach((str) => {
+    const lowered = str.toLowerCase()
+    if (lowered.startsWith('suno') && !extracted.sunoPrompt) extracted.sunoPrompt = str
+
+    const layoutIdentifier = str.match(/(\[\w*\s*\w*\])/i)?.[0]
+    if (!layoutIdentifier) return
+
+    extracted.layout.push(layoutIdentifier)
+    if (layoutIdentifier.toLowerCase().includes('chorus')) {
+      extracted.refrain = str
+      return
+    }
+    extracted.verses.push(str)
+  })
+
+  return extracted
 }

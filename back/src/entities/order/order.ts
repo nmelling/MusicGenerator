@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { sql, desc } from 'drizzle-orm'
 import { HTTPException } from 'hono/http-exception'
 
 import db from '@/database/index'
@@ -74,27 +74,30 @@ class Order {
   }
 
   public async generateLyrics (
-    payload: LyricsPayload,
+    payload: Pick<LyricsPayload, 'musicPrompt' | 'answers'>,
   ): Promise<AggregatedLyrics> {
-    const systemPrompt = await db.select().from(dbConnector.schemas.systemPrompt)
+    const [systemPromptRow] = await db.select().from(dbConnector.schemas.systemPrompt).limit(1).orderBy(desc(dbConnector.schemas.systemPrompt.systemPromptId))
+    if (!systemPromptRow) {
+      // todo logger
+      console.log('SYSTEM_PROMPT_NOT_FOUND')
+      throw new HTTPException(500, { message: 'INTERNAL_SERVER_ERROR' })
+    }
 
-    const generatedLyrics = await $generateLyrics(payload)
+    const generatedLyrics = await $generateLyrics({ ...payload, systemPrompt: systemPromptRow.prompt })
     if (!generatedLyrics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
-
-    const { order } = dbConnector.schemas
 
     let lyrics: AggregatedLyrics[] = []
 
     try {
       lyrics = await db.transaction(async (trx) => {
-        await trx.update(order.lyrics)
+        await trx.update(dbConnector.schemas.lyrics)
           .set({ deprecated: true })
-          .where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+          .where(sql`${dbConnector.schemas.lyrics.orderId} = ${this.$orderId}`)
   
-        await trx.insert(order.lyrics)
+        await trx.insert(dbConnector.schemas.lyrics)
           .values({ orderId: this.$orderId, lyrics: generatedLyrics })
   
-        const lyrics = await trx.select().from(order.lyrics).where(sql`${order.lyrics.orderId} = ${this.$orderId}`)
+        const lyrics = await trx.select().from(dbConnector.schemas.lyrics).where(sql`${dbConnector.schemas.lyrics.orderId} = ${this.$orderId}`)
   
         return lyrics
       })
