@@ -25,7 +25,7 @@ export const lyrics = lyricSchema.table(
       .notNull()
       .references(() => order.orderId),
     sunoPrompt: text().notNull(),
-    layout: json().notNull().default([]), // A voir au niveau du fonctionnement
+    layout: json().$type<string[]>().default([]).notNull(), // A voir au niveau du fonctionnement
     deprecated: boolean().default(false),
     ...timestamps,
   },
@@ -63,7 +63,7 @@ export const refrain = lyricSchema.table(
     refrainId: char({ length: 20 })
     .primaryKey()
     .$default(() => nanoid(20)),
-    lyricsId: char({ length: 20 }).references(() => lyrics.lyricsId).notNull(),
+    lyricsId: char({ length: 20 }).unique('refrain_lyricId').references(() => lyrics.lyricsId).notNull(),
     text: text().notNull(),
     ...timestamps,
   }
@@ -77,7 +77,7 @@ export const lyricsRelations = relations(lyrics, ({ one, many }) => ({
   verses: many(verse),
   refrain: one(refrain, {
     fields: [lyrics.lyricsId],
-    references: [refrain.refrainId],
+    references: [refrain.lyricsId],
   }),
 }))
 
