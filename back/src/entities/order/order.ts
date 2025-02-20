@@ -6,8 +6,8 @@ import { dbConnector } from '@/database/index'
 import type { AggregatedOrder } from '@/database/schema/order'
 import type { AggregatedLyrics } from '@/database/schema/lyrics'
 import type { AnswerPayload } from '@/modules/order/validation'
-import { $generateLyrics } from '@/entities/order/lyrics'
-import { type LyricsPayload } from '@/entities/order/validation'
+import { $generateLyrics, $extractLyricParts, type ExtractedLyricParts  } from '@/entities/order/lyrics'
+import { orderLyricsPayloadSchema, type OrderLyricsPayload } from '@/entities/order/validation'
 
 class Order {
   private $orderId: string;
@@ -74,8 +74,13 @@ class Order {
   }
 
   public async generateLyrics (
-    payload: Pick<LyricsPayload, 'musicPrompt' | 'answers'>,
+    payload: OrderLyricsPayload,
   ): Promise<AggregatedLyrics> {
+    if (!this.$order) throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' })
+
+    const { success } = orderLyricsPayloadSchema.safeParse(payload)
+    if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+
     const [systemPromptRow] = await db.select().from(dbConnector.schemas.systemPrompt).limit(1).orderBy(desc(dbConnector.schemas.systemPrompt.systemPromptId))
     if (!systemPromptRow) {
       // todo logger
@@ -86,18 +91,52 @@ class Order {
     const generatedLyrics = await $generateLyrics({ ...payload, systemPrompt: systemPromptRow.prompt })
     if (!generatedLyrics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
 
-    let lyrics: AggregatedLyrics[] = []
+    const lyricParts: ExtractedLyricParts = $extractLyricParts(generatedLyrics)
+    if (!lyricParts.sunoPrompt) {
+      // todo logger
+      throw new HTTPException(500, { message: 'WRONG_LYRICS_GENERATION' })
+    }
+    if (!lyricParts.layout.length) {
+      // todo logger
+      throw new HTTPException(500, { message: 'WRONG_LYRICS_GENERATION' })
+    }
 
+    let lyrics: AggregatedLyrics[] = []
     try {
       lyrics = await db.transaction(async (trx) => {
         await trx.update(dbConnector.schemas.lyrics)
           .set({ deprecated: true })
           .where(sql`${dbConnector.schemas.lyrics.orderId} = ${this.$orderId}`)
   
-        await trx.insert(dbConnector.schemas.lyrics)
-          .values({ orderId: this.$orderId, lyrics: generatedLyrics })
-  
-        const lyrics = await trx.select().from(dbConnector.schemas.lyrics).where(sql`${dbConnector.schemas.lyrics.orderId} = ${this.$orderId}`)
+        const [insertedLyrics] = await trx.insert(dbConnector.schemas.lyrics)
+          .values({
+            orderId: this.$orderId,
+            sunoPrompt: lyricParts.sunoPrompt,
+            layout: lyricParts.layout,
+          })
+          .returning()
+
+        await trx.insert(dbConnector.schemas.refrain)
+        .values({
+          lyricsId: insertedLyrics.lyricsId,
+          text: lyricParts.refrain,
+        })
+
+        await trx.insert(dbConnector.schemas.verse)
+        .values(
+          lyricParts.verses.map((verse) => ({
+            lyricsId: insertedLyrics.lyricsId,
+            text: verse,
+          })),  
+        )
+
+        const lyrics = await trx.query.lyrics.findMany({
+          where: (lyrics, { eq }) => eq(lyrics.orderId, String(this.$orderId)),
+          with: {
+            verses: true,
+            refrain: true,
+          }
+        })
   
         return lyrics
       })
