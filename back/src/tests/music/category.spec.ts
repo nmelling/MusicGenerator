@@ -4,9 +4,8 @@ import { dbConnector, mockFunctionWrapper, type InsertedTestSeed } from '@/tests
 import Music from '@/entities/music/music'
 import type { AggregatedCategory } from '@/database/schema/music'
 
-await dbConnector.migrateLatest()
-
 mock.module('@/database/index', mockFunctionWrapper)
+await dbConnector.migrateLatest()
 
 let insertedSeeds: InsertedTestSeed
 
@@ -16,12 +15,12 @@ describe('Music category', () => {
       await dbConnector.resetAllSeeds()
       const musics = await Music.listAvailableCategories()
 
+      insertedSeeds = await dbConnector.seed()
       expect(Array.isArray(musics)).toBe(true)
       expect(musics.length).toBe(0)
     })
 
     test('All available categories stored', async () => {
-      insertedSeeds = await dbConnector.seed()
       const musics = await Music.listAvailableCategories()
 
       expect(Array.isArray(musics)).toBe(true)
@@ -29,7 +28,7 @@ describe('Music category', () => {
       expect(musics.map((item) => item.name)).toEqual(insertedSeeds.musicCategories.filter((item) => !item.deprecated).map((item) => item.name))
     })
 
-    test('Pagined list of available categories', async () => {}) // TODO
+    test.todo('Pagined list of available categories', async () => {}) // TODO
   })
 
   describe('One specific category', () => {
