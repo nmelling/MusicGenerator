@@ -1,18 +1,9 @@
 import { expect, beforeEach, afterEach, test, describe, mock } from 'bun:test'
 import { HTTPException } from 'hono/http-exception'
+import { correctPayload, mockResponses, wellFormattedGeneratedLyrics } from '@/tests/mocks/anthropic.mock'
 import anthropicMockWrapper from '@/tests/mocks/anthropic.mock'
 import { $generateLyrics, $extractLyricParts, type ExtractedLyricParts } from '@/entities/order/lyrics'
 
-const correctPayload = {
-  systemPrompt: 'Write a song splitted into intro/chorus & verses',
-  musicPrompt: 'Write an epic folk song about a warrior’s journey through a mystical land.',
-  answers: [
-    { prompt: `The hero name is :`, answer: 'JackoLantern' },
-    { prompt: 'Is he wearing an armor', answer: 'Yes' },
-  ]
-}
-
-let mockResponses = [`Through misty lands, JackoLantern roams, His armored heart where fire glows.`]
 
 beforeEach(() => {
   mock.module('@anthropic-ai/sdk', anthropicMockWrapper({ responses: mockResponses }))
@@ -217,17 +208,13 @@ describe('Lyrics extraction', () => {
     })
 
     test('Returns a correct extracted payload if lyrics are well formatted', () => {
-      const wellFormattedResponse = `"Je vais créer une chanson metal romantique qui exprime des sentiments profonds.\n\nSUNO PROMPT:\n\"Create an emotional metal song with powerful guitar riffs, intense drums, and melodic vocals. Mix heavy verses with melodic chorus. Theme: expressing deep love and gratitude.\"\n\n[INTRO]\nHeavy riffs echo through the night\nYour kindness shines so bright\nThe memories we share\nShow how much you care\n\n[VERSE 1]\nThrough storms and thunder, you stood by my side\nYour gentle soul, there's nothing you need to hide\nEvery moment spent with you feels so right\nYour kindness guides me through the darkest night\n\n[CHORUS]\nYou're the light that never fades away\n(Never fades away!)\nYour heart of gold brightens every day\n(Every single day!)\nI need to tell you what I feel inside\nMy love for you I can no longer hide!\n\n[VERSE 2]\nRemember all those times we laughed and cried\nThe countless moments where our hearts collide\nYour warmth and kindness helped me grow so strong\nWith you beside me, I know where I belong\n\n[BRIDGE]\nThe fire burns inside my soul\n(Inside my soul!)\nYour love has made me whole\n(Made me whole!)\nI'll scream it from the mountain high\nMy love will never die!\n\n[CHORUS]\nYou're the light that never fades away\n(Never fades away!)\nYour heart of gold brightens every day\n(Every single day!)\nI need to tell you what I feel inside\nMy love for you I can no longer hide!\n\n[OUTRO]\nMy love for you will never die\n(Will never die!)\nForever yours until the end of time\n(End of time!)"`
-
       let error
       let extracted: ExtractedLyricParts | undefined
       try {
-        extracted = $extractLyricParts(wellFormattedResponse)
+        extracted = $extractLyricParts(wellFormattedGeneratedLyrics)
       } catch (err) {
         error = err
       }
-
-      console.log(extracted?.layout)
 
       expect(Boolean(error)).toBe(false)
       expect(Boolean(extracted)).toBe(true)
@@ -248,7 +235,6 @@ describe('Lyrics extraction', () => {
           '[CHORUS]',
           '[OUTRO]',
         ]))
-        // peut-être contrôler l'ordre du layout & son contenu
       }
     })
   })
