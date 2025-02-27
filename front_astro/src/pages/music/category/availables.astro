@@ -1,0 +1,36 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+
+import { hc, type InferResponseType } from 'hono/client'
+import type { MusicRoutes } from '@/../../back/src/modules/music/music'
+
+const client = hc<MusicRoutes>('http://localhost:3000/api/music')
+type Categories = InferResponseType<typeof client.category.$get>
+
+let availableCategories: Categories = []
+
+const res = await client.category.$get()
+if (res.ok) {
+  availableCategories = await res.json()
+  console.log(availableCategories)
+}
+---
+
+<PublicLayout>
+  <section class="flex">
+    {
+      availableCategories.map((category) => (
+        <article
+          class="px-5"
+        >
+          <a href={`/music/category/${category.categoryId}`}>
+            <header>{ category.name }</header>
+            <section>
+              <p>{ category.description }</p>
+            </section>
+          </a>
+        </article>
+      ))
+    }
+  </section>
+</PublicLayout>
