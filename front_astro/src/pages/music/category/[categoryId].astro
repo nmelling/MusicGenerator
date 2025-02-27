@@ -1,8 +1,26 @@
 ---
 import PublicLayout from '@/layouts/PublicLayout.astro';
-const { categoryId } = Astro.params;
+import Category from '@/components/music/Category.astro'
+
+const { categoryId } = Astro.params
+const parsedCategoryId = Number(categoryId)
+
+
+if (isNaN(parsedCategoryId)) {
+  // redirect or display error message
+}
 ---
 
 <PublicLayout>
-  Catégorie précise: { categoryId }
+  <section>
+    {
+      !isNaN(parsedCategoryId) && 
+      <Category
+        server:defer
+        categoryId={parsedCategoryId}
+      >
+        <div>Chargement en cours</div>
+      </Category>
+    }
+  </section>
 </PublicLayout>
