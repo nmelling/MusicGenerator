@@ -24,7 +24,7 @@ import Logo from '../assets/astro.svg'
 
 const navs = ref([
   { navId: 'home', label: 'Accueil', to: '/' },
-  { navId: 'musics', label: 'Créez votre chanson', to: '/music/categories' },
+  { navId: 'musics', label: 'Créez votre chanson', to: '/music/category/availables' },
   { navId: 'contact', label: 'Contact', to: '/contact' },
 ])
 </script>
