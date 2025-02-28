@@ -1,5 +1,6 @@
 import { hc, type InferResponseType } from 'hono/client'
-import { deepMap } from 'nanostores'
+import { map, deepMap } from 'nanostores'
+import { shared } from '@it-astro:request-nanostores';
 
 import type { MusicRoutes } from '@/../../back/src/modules/music/music'
 import type { NewOrderPayload } from '@/../../back/src/modules/order/validation'
@@ -7,15 +8,42 @@ import type { NewOrderPayload } from '@/../../back/src/modules/order/validation'
 export const client = hc<MusicRoutes>('http://localhost:3000/api/music')
 export type CategoryResponse = InferResponseType<
   typeof client.category.specific.$get
->;
+>
+export type Categories = InferResponseType<typeof client.category.$get>
 
-export const $categoryForm = deepMap<
+export const $availableCategories = shared('$availableCategories', map<Categories>([]))
+
+export const $category = shared('$category', deepMap<CategoryResponse>())
+
+export const $categoryForm = shared('$categoryForm', deepMap<
   Partial<NewOrderPayload> & Pick<NewOrderPayload, 'answers'>
 >({
   categoryId: undefined,
   email: '',
   answers: [],
-});
+}))
+
+export async function fetchAvailableCategories (): Promise<void> {
+  // todo: pagination
+  const res = await client.category.$get()
+  if (res.ok) {
+    const categories = await res.json()
+    $availableCategories.set(categories)
+  }
+}
+
+export async function fetchCategory(categoryId: number): Promise<void> {
+  const res = await client.category.specific.$get({
+    query: {
+      categoryId: String(categoryId),
+    },
+  })
+  
+  if (res.ok) {
+    const category = await res.json()
+    $category.set(category)
+  }
+}
 
 export function initCategoryForm({
   categoryId,

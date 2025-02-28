@@ -1,6 +1,6 @@
 ---
 import PublicLayout from '@/layouts/PublicLayout.astro';
-import Category from '@/components/music/Category.astro'
+import Category from '@/components/music/Category.vue';
 
 const { categoryId } = Astro.params
 const parsedCategoryId = Number(categoryId)
@@ -16,11 +16,9 @@ if (isNaN(parsedCategoryId)) {
     {
       !isNaN(parsedCategoryId) && 
       <Category
-        server:defer
+        client:load
         categoryId={parsedCategoryId}
-      >
-        <div>Chargement en cours</div>
-      </Category>
+      />
     }
   </section>
 </PublicLayout>
