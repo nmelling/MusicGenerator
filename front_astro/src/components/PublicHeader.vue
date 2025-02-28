@@ -20,7 +20,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import Logo from '../assets/astro.svg'
+import Logo from '@/assets/astro.svg'
 
 const navs = ref([
   { navId: 'home', label: 'Accueil', to: '/' },

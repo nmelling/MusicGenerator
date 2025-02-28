@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/node": "^9.1.1",
     "@astrojs/vue": "^5.0.6",
+    "@inox-tools/request-nanostores": "^0.2.3",
     "@nanostores/vue": "^0.11.0",
     "@tailwindcss/vite": "^4.0.7",
     "astro": "^5.3.0",
