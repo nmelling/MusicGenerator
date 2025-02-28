@@ -34,3 +34,7 @@ export function initCategoryForm({
 export function setAnswer(answer: string, index: number): void {
   $categoryForm.setKey(`answers[${index}].answer`, answer)
 }
+
+export function setEmail(email: string): void {
+  $categoryForm.setKey(`email`, email)
+}
