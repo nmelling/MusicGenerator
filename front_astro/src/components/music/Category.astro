@@ -1,6 +1,4 @@
 ---
-import { hc, type InferResponseType } from 'hono/client'
-import type { MusicRoutes } from '@/../../back/src/modules/music/music'
 import CategoryForm from '@/components/music/CategoryForm.vue'
 import { client, type CategoryResponse } from '@/stores/music'
 
@@ -27,12 +25,13 @@ if (res.ok) {
   category ? (
     <article>
       <header>
-        <h3>{ category.name}</h3>
+        <h3>{ category.name }</h3>
       </header>
       <section>
         <CategoryForm
+          client:load
           questions={ category.questions }
-          categoryId={category.categoryId}
+          categoryId={ category.categoryId }
         />
       </section>
     </article>
