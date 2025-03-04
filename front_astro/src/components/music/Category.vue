@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, type Ref } from 'vue'
 import { fetchCategory, initCategoryForm, $category, $categoryForm, setAnswer, setEmail } from '@/stores/music'
 import { onSubmitNewOrder } from '@/stores/order'
 import { useStore } from '@nanostores/vue'
@@ -59,10 +60,18 @@ if (import.meta.env.SSR) {
   initCategoryForm({ categoryId: category.value.categoryId, questions: [...category.value.questions] })
 }
 
+const loading = ref(false)
+
 async function onSubmit () {
+  loading.value = true
   // todo cleaned validation
   // todo: Check if required fields has answer
-  await onSubmitNewOrder()
+  const { success, orderId } = await onSubmitNewOrder()
+  if (success && orderId) {
+    // redirect to order route
+  }
+
+  loading.value = false
 }
 </script>
 

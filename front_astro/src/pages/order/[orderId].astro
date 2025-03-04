@@ -1,0 +1,19 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+import Order from '@/components/order/Order.vue';
+
+const { orderId } = Astro.params
+
+---
+
+<PublicLayout>
+  <section>
+    {
+      orderId && 
+      <Order
+        client:load
+        categoryId={orderId}
+      />
+    }
+  </section>
+</PublicLayout>

@@ -25,23 +25,28 @@ const newOrderForm = computed([$categoryForm, $category], (form, category): NewO
   }
 })
 
-export async function onSubmitNewOrder() {
+export async function onSubmitNewOrder(): Promise<{ success: boolean, orderId?: string }> {
   console.log(newOrderForm.get())
   const form = newOrderForm.get()
   if (!form) {
     // message d'erreur (toast)
-    return
+    return { success: false }
   }
 
+  let orderId = ''
   try {
     const res = await client.index.$post({
       json: form,
     })
 
     if (res.ok) {
-      // set de la commande + redirection sur page dédiée
+      const order = await res.json()
+      orderId = order.orderId
+      console.log({ order })
     }
   } catch (err) {
     console.log(err)
+    return { success: false }
   }
+  return { success: true, orderId }
 }
