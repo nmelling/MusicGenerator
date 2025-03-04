@@ -71,7 +71,7 @@ export function $extractLyricParts (lyrics: string): ExtractedLyricParts {
 
   splitted.forEach((str) => {
     const lowered = str.toLowerCase()
-    if (lowered.startsWith('suno') && !extracted.sunoPrompt) extracted.sunoPrompt = str
+    if (lowered.includes('suno') && !extracted.sunoPrompt) extracted.sunoPrompt = str
 
     const layoutIdentifier = str.match(/(\[\w*\s*\w*\])/i)?.[0]
     if (!layoutIdentifier) return

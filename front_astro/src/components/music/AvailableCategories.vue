@@ -7,7 +7,7 @@
       :key="category.name"
       class="px-5"
     >
-      <a :href="`/music/category/${category.categoryId}`">
+      <a :href="`/music/${category.categoryId}`">
         <header>{{ category.name }}</header>
         <section>
           <p>{{ category.description }}</p>

@@ -1,4 +1,4 @@
-import { hc, type InferResponseType, type InferRequestType } from 'hono/client'
+import { hc, type InferResponseType } from 'hono/client'
 import { computed } from 'nanostores'
 import { shared } from '@it-astro:request-nanostores';
 import { $categoryForm, $category } from '@/stores/music'
@@ -14,7 +14,6 @@ typeof client.index.$post
 const newOrderForm = computed([$categoryForm, $category], (form, category): NewOrderPayload | null => {
   if (!form.categoryId || !form.email || !category) return null
   return {
-    ...form,
     categoryId: form.categoryId,
     email: form.email,
     answers: form.answers.filter((answer) => {
@@ -27,20 +26,22 @@ const newOrderForm = computed([$categoryForm, $category], (form, category): NewO
 })
 
 export async function onSubmitNewOrder() {
-  if (!newOrderForm.value) {
+  console.log(newOrderForm.get())
+  const form = newOrderForm.get()
+  if (!form) {
     // message d'erreur (toast)
     return
   }
 
   try {
     const res = await client.index.$post({
-      json: newOrderForm.value,
+      json: form,
     })
 
     if (res.ok) {
       // set de la commande + redirection sur page dédiée
     }
   } catch (err) {
-    
+    console.log(err)
   }
 }

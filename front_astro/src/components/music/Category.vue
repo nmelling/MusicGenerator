@@ -40,9 +40,8 @@
 </template>
 
 <script setup lang="ts">
-
-
 import { fetchCategory, initCategoryForm, $category, $categoryForm, setAnswer, setEmail } from '@/stores/music'
+import { onSubmitNewOrder } from '@/stores/order'
 import { useStore } from '@nanostores/vue'
 
 const props = defineProps({
@@ -61,10 +60,10 @@ if (import.meta.env.SSR) {
 }
 
 async function onSubmit () {
-  console.log(form.value)
-  // todo validation checking (required questions)
+  // todo cleaned validation
+  // todo: Check if required fields has answer
+  await onSubmitNewOrder()
 }
-
 </script>
 
 <style>
