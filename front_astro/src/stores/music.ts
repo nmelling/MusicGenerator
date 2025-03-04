@@ -25,23 +25,31 @@ export const $categoryForm = shared('$categoryForm', deepMap<
 
 export async function fetchAvailableCategories (): Promise<void> {
   // todo: pagination
-  const res = await client.category.$get()
-  if (res.ok) {
-    const categories = await res.json()
-    $availableCategories.set(categories)
+  try {
+    const res = await client.category.$get()
+    if (res.ok) {
+      const categories = await res.json()
+      $availableCategories.set(categories)
+    }
+  } catch (err) {
+    // toast erreur
   }
 }
 
 export async function fetchCategory(categoryId: number): Promise<void> {
-  const res = await client.category.specific.$get({
-    query: {
-      categoryId: String(categoryId),
-    },
-  })
-  
-  if (res.ok) {
-    const category = await res.json()
-    $category.set(category)
+  try {
+    const res = await client.category.specific.$get({
+      query: {
+        categoryId: String(categoryId),
+      },
+    })
+    
+    if (res.ok) {
+      const category = await res.json()
+      $category.set(category)
+    }
+  } catch (err) {
+    // toast erreur
   }
 }
 

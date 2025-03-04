@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-// todo validation checking (required questions)
+
 
 import { fetchCategory, initCategoryForm, $category, $categoryForm, setAnswer, setEmail } from '@/stores/music'
 import { useStore } from '@nanostores/vue'
@@ -62,6 +62,7 @@ if (import.meta.env.SSR) {
 
 async function onSubmit () {
   console.log(form.value)
+  // todo validation checking (required questions)
 }
 
 </script>
