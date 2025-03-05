@@ -119,13 +119,12 @@ class MockDatabaseConnector {
           musicQuestions,
           musicCategoryQuestionPivots,
           systemPrompts,
-        ] =
-          await Promise.all([
-            trx.select().from(this.$schemas.musicCategory),
-            trx.select().from(this.$schemas.musicQuestion),
-            trx.select().from(this.$schemas.musicCategoryQuestionPivot),
-            trx.select().from(this.$schemas.systemPrompt),
-          ])
+        ] = await Promise.all([
+          trx.select().from(this.$schemas.musicCategory),
+          trx.select().from(this.$schemas.musicQuestion),
+          trx.select().from(this.$schemas.musicCategoryQuestionPivot),
+          trx.select().from(this.$schemas.systemPrompt),
+        ])
 
         return {
           musicCategories,
@@ -164,7 +163,10 @@ class MockDatabaseConnector {
             })),
         ])
         .returning()
-      const insertedSystemPrompts = await trx.insert(this.$schemas.systemPrompt).values({ prompt: 'foobar' }).returning()
+      const insertedSystemPrompts = await trx
+        .insert(this.$schemas.systemPrompt)
+        .values({ prompt: 'foobar' })
+        .returning()
 
       return {
         musicCategories: insertedCategories,

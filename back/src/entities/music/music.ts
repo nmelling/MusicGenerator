@@ -1,24 +1,30 @@
 import { HTTPException } from 'hono/http-exception'
 import * as R from 'remeda'
 import db from '@/database/index'
-import type { AggregatedCategory, MusicCategory, MusicQuestion } from '@/database/schema/music'
+import type {
+  AggregatedCategory,
+  MusicCategory,
+  MusicQuestion,
+} from '@/database/schema/music'
 import { type AnswersPayload, answersSchema } from '@/modules/order/validation'
 
 class Music {
   private $categoryId: number | null
-  private $musicCategory: AggregatedCategory | null;
+  private $musicCategory: AggregatedCategory | null
 
-  constructor (categoryId: number) {
+  constructor(categoryId: number) {
     this.$categoryId = categoryId
     this.$musicCategory = null
   }
 
-  private async init (): Promise<AggregatedCategory> {
-    if (!this.$categoryId) throw new HTTPException(400, { message: 'NO_CATEGORY_ID' })
+  private async init(): Promise<AggregatedCategory> {
+    if (!this.$categoryId)
+      throw new HTTPException(400, { message: 'NO_CATEGORY_ID' })
     if (this.$musicCategory) return this.$musicCategory
 
     const $category = await db.query.musicCategory.findFirst({
-      where: (musicCategory, { eq }) => eq(musicCategory.categoryId, Number(this.$categoryId)),
+      where: (musicCategory, { eq }) =>
+        eq(musicCategory.categoryId, Number(this.$categoryId)),
       with: {
         questions: {
           columns: {
@@ -33,7 +39,8 @@ class Music {
       },
     })
 
-    if (!$category) throw new HTTPException(404, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
+    if (!$category)
+      throw new HTTPException(404, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
 
     const category: AggregatedCategory = {
       ...R.omit($category, ['questions']),
@@ -45,7 +52,7 @@ class Music {
         $category.questions,
         R.filter((item) => Boolean(item.question)),
         R.sortBy([R.prop('position'), 'asc']),
-        R.map(({ question }) => question),
+        R.map(({ question }) => question)
       )
     }
 
@@ -53,30 +60,42 @@ class Music {
     return this.$musicCategory
   }
 
-  public static async listAvailableCategories (): Promise<MusicCategory[]> {
+  public static async listAvailableCategories(): Promise<MusicCategory[]> {
     return await db.query.musicCategory.findMany({
-      where: (musicCategory, { eq }) => eq(musicCategory.deprecated, false)
+      where: (musicCategory, { eq }) => eq(musicCategory.deprecated, false),
     })
   }
-  
-  get category () {
+
+  get category() {
     return this.init()
   }
 
-  public async checkAndAssignAnswers (answers: AnswersPayload): Promise<Array<MusicQuestion & { answer: string }>> {
+  public async checkAndAssignAnswers(
+    answers: AnswersPayload
+  ): Promise<Array<MusicQuestion & { answer: string }>> {
     if (!this.$musicCategory) await this.init()
-    if (!this.$musicCategory) throw new HTTPException(404, { message: 'CATEGORY_NOT_FOUND' })
+    if (!this.$musicCategory)
+      throw new HTTPException(404, { message: 'CATEGORY_NOT_FOUND' })
 
-      const { success } = answersSchema.safeParse(answers)
-        if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+    const { success } = answersSchema.safeParse(answers)
+    if (!success)
+      throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
 
-    const aggregatedQuestions = this.$musicCategory.questions.map((question) => ({
-      ...question,
-      answer: answers.find((answer) => answer.questionId === question.questionId)?.answer ?? '',
-    }))
+    const aggregatedQuestions = this.$musicCategory.questions.map(
+      (question) => ({
+        ...question,
+        answer:
+          answers.find((answer) => answer.questionId === question.questionId)
+            ?.answer ?? '',
+      })
+    )
 
-    const missingAnswers = R.filter(aggregatedQuestions, (item) => Boolean(item.isRequired) && !item.deprecated && !item.answer)
-    if (missingAnswers.length) throw new HTTPException(400, { message: 'MISSING_ANSWERS' }) 
+    const missingAnswers = R.filter(
+      aggregatedQuestions,
+      (item) => Boolean(item.isRequired) && !item.deprecated && !item.answer
+    )
+    if (missingAnswers.length)
+      throw new HTTPException(400, { message: 'MISSING_ANSWERS' })
 
     return aggregatedQuestions
   }

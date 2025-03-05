@@ -37,8 +37,8 @@ export const order = orderSchema.table(
 export const answer = orderSchema.table('answer', {
   answerId: integer().primaryKey().generatedAlwaysAsIdentity(),
   orderId: char({ length: 20 })
-      .notNull()
-      .references(() => order.orderId),
+    .notNull()
+    .references(() => order.orderId),
   questionId: integer()
     .notNull()
     .references(() => musicQuestion.questionId),
@@ -55,7 +55,7 @@ export const orderRelations = relations(order, ({ one, many }) => ({
   answers: many(answer),
 }))
 
-export const answerRelations = relations(answer, ({ one }) =>({
+export const answerRelations = relations(answer, ({ one }) => ({
   question: one(musicQuestion, {
     fields: [answer.questionId],
     references: [musicQuestion.questionId],

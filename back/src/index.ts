@@ -29,10 +29,7 @@ app.onError((err, c) => {
   return c.json({ error: 'Something went wrong' }, 500)
 })
 
-const routes = app
-  .route('/music', music)
-  .route('/order', order)
-
+const routes = app.route('/music', music).route('/order', order)
 
 export type AppType = typeof routes
 

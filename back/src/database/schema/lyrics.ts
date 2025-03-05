@@ -19,8 +19,8 @@ export const lyrics = lyricSchema.table(
   'lyrics',
   {
     lyricsId: char({ length: 20 })
-    .primaryKey()
-    .$default(() => nanoid(20)),
+      .primaryKey()
+      .$default(() => nanoid(20)),
     orderId: char({ length: 20 })
       .notNull()
       .references(() => order.orderId),
@@ -31,43 +31,39 @@ export const lyrics = lyricSchema.table(
   },
   (table) => {
     return {
-      orderIndex: index('order_index').on(table.orderId)
+      orderIndex: index('order_index').on(table.orderId),
     }
   }
 )
 
-export const systemPrompt = lyricSchema.table(
-  'systemPrompt',
-  {
-    systemPromptId: integer().primaryKey().generatedAlwaysAsIdentity(),
-    prompt: text().notNull(),
-  }
-)
+export const systemPrompt = lyricSchema.table('systemPrompt', {
+  systemPromptId: integer().primaryKey().generatedAlwaysAsIdentity(),
+  prompt: text().notNull(),
+})
 
-export const verse = lyricSchema.table(
-  'verse',
-  {
-    verseId: char({ length: 20 })
+export const verse = lyricSchema.table('verse', {
+  verseId: char({ length: 20 })
     .primaryKey()
     .$default(() => nanoid(20)),
-    lyricsId: char({ length: 20 }).references(() => lyrics.lyricsId).notNull(),
-    text: text().notNull(),
-    deprecated: boolean().default(false),
-    ...timestamps,
-  }
-)
+  lyricsId: char({ length: 20 })
+    .references(() => lyrics.lyricsId)
+    .notNull(),
+  text: text().notNull(),
+  deprecated: boolean().default(false),
+  ...timestamps,
+})
 
-export const refrain = lyricSchema.table(
-  'refrain',
-  {
-    refrainId: char({ length: 20 })
+export const refrain = lyricSchema.table('refrain', {
+  refrainId: char({ length: 20 })
     .primaryKey()
     .$default(() => nanoid(20)),
-    lyricsId: char({ length: 20 }).unique('refrain_lyricId').references(() => lyrics.lyricsId).notNull(),
-    text: text().notNull(),
-    ...timestamps,
-  }
-)
+  lyricsId: char({ length: 20 })
+    .unique('refrain_lyricId')
+    .references(() => lyrics.lyricsId)
+    .notNull(),
+  text: text().notNull(),
+  ...timestamps,
+})
 
 export const lyricsRelations = relations(lyrics, ({ one, many }) => ({
   order: one(order, {
@@ -85,14 +81,14 @@ export const verseRelations = relations(verse, ({ one }) => ({
   lyric: one(lyrics, {
     fields: [verse.lyricsId],
     references: [lyrics.lyricsId],
-  })
+  }),
 }))
 
 export const refrainRelations = relations(refrain, ({ one }) => ({
   lyric: one(lyrics, {
     fields: [refrain.lyricsId],
     references: [lyrics.lyricsId],
-  })
+  }),
 }))
 
 export type SystemPrompt = InferSelectModel<typeof systemPrompt>

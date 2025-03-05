@@ -2,12 +2,13 @@ import Anthropic from '@anthropic-ai/sdk'
 import { HTTPException } from 'hono/http-exception'
 import { type LyricsPayload, lyricsPayloadSchema } from './validation'
 
-export async function $generateLyrics (payload: LyricsPayload): Promise<string> {
+export async function $generateLyrics(payload: LyricsPayload): Promise<string> {
   const apiKey = Bun.env['ANTHROPIC_API_KEY']
   if (!apiKey) throw new HTTPException(400, { message: 'MISSING_API_KEY' })
 
   const { success } = lyricsPayloadSchema.safeParse(payload)
-  if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+  if (!success)
+    throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
 
   const anthropic = new Anthropic({ apiKey })
 
@@ -39,7 +40,8 @@ export async function $generateLyrics (payload: LyricsPayload): Promise<string> 
     })
 
     const responseContent = message.content[0]
-    if ('text' in responseContent && typeof responseContent.text === 'string') generatedLyics = responseContent.text
+    if ('text' in responseContent && typeof responseContent.text === 'string')
+      generatedLyics = responseContent.text
   } catch (err) {
     // todo logger
     throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' })
@@ -49,15 +51,16 @@ export async function $generateLyrics (payload: LyricsPayload): Promise<string> 
 }
 
 export type ExtractedLyricParts = {
-  sunoPrompt: string,
-  verses: string[],
-  refrain: string,
+  sunoPrompt: string
+  verses: string[]
+  refrain: string
   layout: string[]
 }
 
-export function $extractLyricParts (lyrics: string): ExtractedLyricParts {
+export function $extractLyricParts(lyrics: string): ExtractedLyricParts {
   if (!lyrics) throw new HTTPException(400, { message: 'NO_LYRICS_PROVIDED' })
-  if (typeof lyrics !== 'string') throw new HTTPException(400, { message: 'WRONG_LYRICS_FORMAT' })
+  if (typeof lyrics !== 'string')
+    throw new HTTPException(400, { message: 'WRONG_LYRICS_FORMAT' })
 
   const extracted: ExtractedLyricParts = {
     sunoPrompt: '',
@@ -71,7 +74,8 @@ export function $extractLyricParts (lyrics: string): ExtractedLyricParts {
 
   splitted.forEach((str) => {
     const lowered = str.toLowerCase()
-    if (lowered.includes('suno') && !extracted.sunoPrompt) extracted.sunoPrompt = str
+    if (lowered.includes('suno') && !extracted.sunoPrompt)
+      extracted.sunoPrompt = str
 
     const layoutIdentifier = str.match(/(\[\w*\s*\w*\])/i)?.[0]
     if (!layoutIdentifier) return

@@ -1,6 +1,10 @@
 import { expect, mock, test, describe } from 'bun:test'
 import { HTTPException } from 'hono/http-exception'
-import { dbConnector, mockFunctionWrapper, type InsertedTestSeed } from '@/tests/mocks/dbConnector.mock'
+import {
+  dbConnector,
+  mockFunctionWrapper,
+  type InsertedTestSeed,
+} from '@/tests/mocks/dbConnector.mock'
 import Music from '@/entities/music/music'
 import type { AggregatedCategory } from '@/database/schema/music'
 
@@ -25,7 +29,11 @@ describe('Music category', () => {
 
       expect(Array.isArray(musics)).toBe(true)
       expect(musics.length).toBe(3)
-      expect(musics.map((item) => item.name)).toEqual(insertedSeeds.musicCategories.filter((item) => !item.deprecated).map((item) => item.name))
+      expect(musics.map((item) => item.name)).toEqual(
+        insertedSeeds.musicCategories
+          .filter((item) => !item.deprecated)
+          .map((item) => item.name)
+      )
     })
 
     test.todo('Pagined list of available categories', async () => {}) // TODO
@@ -39,7 +47,7 @@ describe('Music category', () => {
 
         let error
         try {
-          await $music.category          
+          await $music.category
         } catch (err) {
           error = err
         }
@@ -56,7 +64,7 @@ describe('Music category', () => {
         let error
         const $music = new Music(999999)
         try {
-          await $music.category          
+          await $music.category
         } catch (err) {
           error = err
         }
@@ -74,13 +82,13 @@ describe('Music category', () => {
         const seededCategory = insertedSeeds.musicCategories[0]
 
         let error
-        let musicCategory: AggregatedCategory | undefined 
+        let musicCategory: AggregatedCategory | undefined
         const $music = new Music(seededCategory.categoryId)
 
         try {
           musicCategory = await $music.category
         } catch (err) {
-          error = err 
+          error = err
         }
 
         expect($music).toBeInstanceOf(Music)
@@ -88,7 +96,13 @@ describe('Music category', () => {
         expect(Boolean(musicCategory)).toBe(true)
         if (musicCategory) {
           expect(musicCategory.categoryId).toEqual(seededCategory.categoryId)
-          expect(musicCategory.questions.map((item) => item.questionId)).toEqual(insertedSeeds.musicCategoryQuestionPivots.filter((item) => item.categoryId === seededCategory.categoryId).map((item) => item.questionId))
+          expect(
+            musicCategory.questions.map((item) => item.questionId)
+          ).toEqual(
+            insertedSeeds.musicCategoryQuestionPivots
+              .filter((item) => item.categoryId === seededCategory.categoryId)
+              .map((item) => item.questionId)
+          )
         }
       })
     })

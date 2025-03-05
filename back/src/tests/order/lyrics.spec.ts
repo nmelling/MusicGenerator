@@ -1,12 +1,22 @@
 import { expect, beforeEach, afterEach, test, describe, mock } from 'bun:test'
 import { HTTPException } from 'hono/http-exception'
-import { correctPayload, mockResponses, wellFormattedGeneratedLyrics } from '@/tests/mocks/anthropic.mock'
+import {
+  correctPayload,
+  mockResponses,
+  wellFormattedGeneratedLyrics,
+} from '@/tests/mocks/anthropic.mock'
 import anthropicMockWrapper from '@/tests/mocks/anthropic.mock'
-import { $generateLyrics, $extractLyricParts, type ExtractedLyricParts } from '@/entities/order/lyrics'
-
+import {
+  $generateLyrics,
+  $extractLyricParts,
+  type ExtractedLyricParts,
+} from '@/entities/order/lyrics'
 
 beforeEach(() => {
-  mock.module('@anthropic-ai/sdk', anthropicMockWrapper({ responses: mockResponses }))
+  mock.module(
+    '@anthropic-ai/sdk',
+    anthropicMockWrapper({ responses: mockResponses })
+  )
 })
 
 afterEach(() => {
@@ -39,9 +49,11 @@ describe('Generate lyrics', async () => {
     test('Payload incorrectly formatted, missing systemPrompt', async () => {
       let error
       try {
-        await $generateLyrics({ answers: [{ prompt: 'foobar', answer: '' }] } as any)
+        await $generateLyrics({
+          answers: [{ prompt: 'foobar', answer: '' }],
+        } as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -55,9 +67,12 @@ describe('Generate lyrics', async () => {
     test('Payload incorrectly formatted, empty answer provided', async () => {
       let error
       try {
-        await $generateLyrics({ systempPrompt: 'foobar', answers: [{ prompt: 'foobar', answer: '' }] } as any)
+        await $generateLyrics({
+          systempPrompt: 'foobar',
+          answers: [{ prompt: 'foobar', answer: '' }],
+        } as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -73,7 +88,7 @@ describe('Generate lyrics', async () => {
       try {
         await $generateLyrics({ systempPrompt: 'foobar', answers: [] } as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -85,13 +100,19 @@ describe('Generate lyrics', async () => {
     })
 
     test('Anthropic generation error', async () => {
-      mock.module('@anthropic-ai/sdk', anthropicMockWrapper({ responses: mockResponses, messageGenerationThrow: true }))
+      mock.module(
+        '@anthropic-ai/sdk',
+        anthropicMockWrapper({
+          responses: mockResponses,
+          messageGenerationThrow: true,
+        })
+      )
 
       let error
       try {
         await $generateLyrics(correctPayload)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -103,14 +124,20 @@ describe('Generate lyrics', async () => {
     })
 
     test('Incorrect anthropic response format should returns an empty string', async () => {
-      mock.module('@anthropic-ai/sdk', anthropicMockWrapper({ responses: mockResponses, misformatResponse: true }))
+      mock.module(
+        '@anthropic-ai/sdk',
+        anthropicMockWrapper({
+          responses: mockResponses,
+          misformatResponse: true,
+        })
+      )
 
       let error
       let generatedLyrics
       try {
         generatedLyrics = await $generateLyrics(correctPayload)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(false)
@@ -125,7 +152,7 @@ describe('Generate lyrics', async () => {
       try {
         generatedLyrics = await $generateLyrics(correctPayload)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(false)
@@ -219,22 +246,36 @@ describe('Lyrics extraction', () => {
       expect(Boolean(error)).toBe(false)
       expect(Boolean(extracted)).toBe(true)
       if (extracted) {
-        expect(extracted.sunoPrompt).toBe(`SUNO PROMPT:\n\"Create an emotional metal song with powerful guitar riffs, intense drums, and melodic vocals. Mix heavy verses with melodic chorus. Theme: expressing deep love and gratitude.\"`)
-        expect(extracted.refrain).toBe(`[CHORUS]\nYou're the light that never fades away\n(Never fades away!)\nYour heart of gold brightens every day\n(Every single day!)\nI need to tell you what I feel inside\nMy love for you I can no longer hide!`)
+        expect(extracted.sunoPrompt).toBe(
+          `SUNO PROMPT:\n\"Create an emotional metal song with powerful guitar riffs, intense drums, and melodic vocals. Mix heavy verses with melodic chorus. Theme: expressing deep love and gratitude.\"`
+        )
+        expect(extracted.refrain).toBe(
+          `[CHORUS]\nYou're the light that never fades away\n(Never fades away!)\nYour heart of gold brightens every day\n(Every single day!)\nI need to tell you what I feel inside\nMy love for you I can no longer hide!`
+        )
         expect(Array.isArray(extracted.verses)).toBe(true)
         expect(extracted.verses.length).toBe(5)
-        expect(Boolean(extracted.verses.find((str) => str === 'Je vais créer une chanson metal romantique qui exprime des sentiments profonds.'))).toBe(false)
+        expect(
+          Boolean(
+            extracted.verses.find(
+              (str) =>
+                str ===
+                'Je vais créer une chanson metal romantique qui exprime des sentiments profonds.'
+            )
+          )
+        ).toBe(false)
         expect(Array.isArray(extracted.layout)).toBe(true)
         expect(extracted.layout.length).toBe(7)
-        expect(extracted.layout).toEqual(expect.arrayContaining([
-          '[INTRO]',
-          '[VERSE 1]',
-          '[CHORUS]',
-          '[VERSE 2]',
-          '[BRIDGE]',
-          '[CHORUS]',
-          '[OUTRO]',
-        ]))
+        expect(extracted.layout).toEqual(
+          expect.arrayContaining([
+            '[INTRO]',
+            '[VERSE 1]',
+            '[CHORUS]',
+            '[VERSE 2]',
+            '[BRIDGE]',
+            '[CHORUS]',
+            '[OUTRO]',
+          ])
+        )
       }
     })
   })

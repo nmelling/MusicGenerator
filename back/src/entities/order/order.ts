@@ -6,12 +6,19 @@ import { dbConnector } from '@/database/index'
 import type { AggregatedOrder } from '@/database/schema/order'
 import type { AggregatedLyrics } from '@/database/schema/lyrics'
 import type { AnswerPayload } from '@/modules/order/validation'
-import { $generateLyrics, $extractLyricParts, type ExtractedLyricParts  } from '@/entities/order/lyrics'
-import { orderLyricsPayloadSchema, type OrderLyricsPayload } from '@/entities/order/validation'
+import {
+  $generateLyrics,
+  $extractLyricParts,
+  type ExtractedLyricParts,
+} from '@/entities/order/lyrics'
+import {
+  orderLyricsPayloadSchema,
+  type OrderLyricsPayload,
+} from '@/entities/order/validation'
 
 class Order {
-  private $orderId: string;
-  private $order: AggregatedOrder | null;
+  private $orderId: string
+  private $order: AggregatedOrder | null
 
   constructor(orderId?: string) {
     this.$orderId = orderId || ''
@@ -20,9 +27,9 @@ class Order {
     if (orderId) this.init()
   }
 
-  private async init (): Promise<AggregatedOrder> {
+  private async init(): Promise<AggregatedOrder> {
     if (!this.$orderId) throw new HTTPException(400, { message: 'NO_ORDER_ID' })
-    
+
     const order = await db.query.order.findFirst({
       where: (order, { eq }) => eq(order.orderId, String(this.$orderId)),
       with: {
@@ -30,10 +37,10 @@ class Order {
           with: {
             verses: true,
             refrain: true,
-          }
+          },
         },
         answers: true,
-      }
+      },
     })
 
     if (!order) throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' })
@@ -42,19 +49,26 @@ class Order {
     return order
   }
 
-  public async createNewOrder (email: string, categoryId: number, answers: AnswerPayload[]): Promise<string> {
+  public async createNewOrder(
+    email: string,
+    categoryId: number,
+    answers: AnswerPayload[]
+  ): Promise<string> {
     const order = await db.transaction(async (trx) => {
-      const [inserted] = await trx.insert(dbConnector.schemas.order)
-      .values({ email, categoryId })
-      .returning()
+      const [inserted] = await trx
+        .insert(dbConnector.schemas.order)
+        .values({ email, categoryId })
+        .returning()
 
-      await trx.insert(dbConnector.schemas.answer).values(answers.map((item) => ({ orderId: inserted.orderId, ...item })))
+      await trx
+        .insert(dbConnector.schemas.answer)
+        .values(answers.map((item) => ({ orderId: inserted.orderId, ...item })))
 
       const order = trx.query.order.findFirst({
         where: (order, { eq }) => eq(order.orderId, inserted.orderId),
         with: {
           answers: true,
-        }
+        },
       })
 
       return order
@@ -73,23 +87,33 @@ class Order {
     return order.orderId
   }
 
-  public async generateLyrics (
-    payload: OrderLyricsPayload,
+  public async generateLyrics(
+    payload: OrderLyricsPayload
   ): Promise<AggregatedLyrics> {
-    if (!this.$order) throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' })
+    if (!this.$order)
+      throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' })
 
     const { success } = orderLyricsPayloadSchema.safeParse(payload)
-    if (!success) throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+    if (!success)
+      throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
 
-    const [systemPromptRow] = await db.select().from(dbConnector.schemas.systemPrompt).limit(1).orderBy(desc(dbConnector.schemas.systemPrompt.systemPromptId))
+    const [systemPromptRow] = await db
+      .select()
+      .from(dbConnector.schemas.systemPrompt)
+      .limit(1)
+      .orderBy(desc(dbConnector.schemas.systemPrompt.systemPromptId))
     if (!systemPromptRow) {
       // todo logger
       console.log('SYSTEM_PROMPT_NOT_FOUND')
       throw new HTTPException(500, { message: 'INTERNAL_SERVER_ERROR' })
     }
 
-    const generatedLyrics = await $generateLyrics({ ...payload, systemPrompt: systemPromptRow.prompt })
-    if (!generatedLyrics) throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
+    const generatedLyrics = await $generateLyrics({
+      ...payload,
+      systemPrompt: systemPromptRow.prompt,
+    })
+    if (!generatedLyrics)
+      throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' })
 
     const lyricParts: ExtractedLyricParts = $extractLyricParts(generatedLyrics)
     if (!lyricParts.sunoPrompt) {
@@ -104,11 +128,13 @@ class Order {
     let lyrics: AggregatedLyrics[] = []
     try {
       lyrics = await db.transaction(async (trx) => {
-        await trx.update(dbConnector.schemas.lyrics)
+        await trx
+          .update(dbConnector.schemas.lyrics)
           .set({ deprecated: true })
           .where(sql`${dbConnector.schemas.lyrics.orderId} = ${this.$orderId}`)
-  
-        const [insertedLyrics] = await trx.insert(dbConnector.schemas.lyrics)
+
+        const [insertedLyrics] = await trx
+          .insert(dbConnector.schemas.lyrics)
           .values({
             orderId: this.$orderId,
             sunoPrompt: lyricParts.sunoPrompt,
@@ -116,18 +142,16 @@ class Order {
           })
           .returning()
 
-        await trx.insert(dbConnector.schemas.refrain)
-        .values({
+        await trx.insert(dbConnector.schemas.refrain).values({
           lyricsId: insertedLyrics.lyricsId,
           text: lyricParts.refrain,
         })
 
-        await trx.insert(dbConnector.schemas.verse)
-        .values(
+        await trx.insert(dbConnector.schemas.verse).values(
           lyricParts.verses.map((verse) => ({
             lyricsId: insertedLyrics.lyricsId,
             text: verse,
-          })),  
+          }))
         )
 
         const lyrics = await trx.query.lyrics.findMany({
@@ -135,29 +159,30 @@ class Order {
           with: {
             verses: true,
             refrain: true,
-          }
+          },
         })
-  
+
         return lyrics
       })
     } catch (err) {
       // todo: logger
-      throw new HTTPException(500, { message: 'LYRICS_STORAGE_ERROR'})
+      throw new HTTPException(500, { message: 'LYRICS_STORAGE_ERROR' })
     }
 
     if (this.$order) this.$order.lyrics = lyrics
 
     const activeLyrics = lyrics.find((item) => !item.deprecated)
-    if (!activeLyrics) throw new HTTPException(404, { message: 'NO_ACTIVE_LYRICS' })
+    if (!activeLyrics)
+      throw new HTTPException(404, { message: 'NO_ACTIVE_LYRICS' })
 
     return activeLyrics
   }
 
-  get order () {
+  get order() {
     return this.init()
   }
 
-  get lyrics (): AggregatedLyrics | null {
+  get lyrics(): AggregatedLyrics | null {
     if (!this.$order || !this.$order.lyrics) return null
     return this.$order.lyrics.find((item) => !item.deprecated) || null
   }

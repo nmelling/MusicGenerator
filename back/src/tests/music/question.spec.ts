@@ -1,6 +1,10 @@
 import { expect, mock, test, describe } from 'bun:test'
 import { HTTPException } from 'hono/http-exception'
-import { dbConnector, mockFunctionWrapper, type InsertedTestSeed } from '@/tests/mocks/dbConnector.mock'
+import {
+  dbConnector,
+  mockFunctionWrapper,
+  type InsertedTestSeed,
+} from '@/tests/mocks/dbConnector.mock'
 import Music from '@/entities/music/music'
 
 await dbConnector.migrateLatest()
@@ -12,10 +16,10 @@ describe('Music question', () => {
   describe('Answer assignation', () => {
     test('Assign on a unknown category questions', async () => {
       const $music = new Music(999999)
-      
+
       let error
       try {
-        await $music.checkAndAssignAnswers([])        
+        await $music.checkAndAssignAnswers([])
       } catch (err) {
         error = err
       }
@@ -36,7 +40,7 @@ describe('Music question', () => {
       try {
         await $music.checkAndAssignAnswers([])
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect($music).toBeInstanceOf(Music)
@@ -47,15 +51,15 @@ describe('Music question', () => {
         expect(error.message).toBe('INCORRECT_PAYLOAD_PROVIDED')
       }
     })
-    
+
     test(`Payload: Wrong answer's format provided`, async () => {
       const $music = new Music(insertedSeeds.musicCategories[1].categoryId)
       let error
 
       try {
         await $music.checkAndAssignAnswers([{ foo: 'bar' }] as any)
-      } catch (err) { 
-        error = err 
+      } catch (err) {
+        error = err
       }
 
       expect($music).toBeInstanceOf(Music)
@@ -66,24 +70,25 @@ describe('Music question', () => {
         expect(error.message).toBe('INCORRECT_PAYLOAD_PROVIDED')
       }
     })
-    
+
     test('Payload: Missing answers to required questions', async () => {
       const categoryId = insertedSeeds.musicCategories[1].categoryId
-      const onlyRequiredQuestionIds = insertedSeeds.musicQuestions.filter((item) => item.isRequired).map((item) => item.questionId)
+      const onlyRequiredQuestionIds = insertedSeeds.musicQuestions
+        .filter((item) => item.isRequired)
+        .map((item) => item.questionId)
       const $music = new Music(categoryId)
 
-      const answers = insertedSeeds
-      .musicCategoryQuestionPivots
-      .filter((pivot) => pivot.categoryId === categoryId)
-      .map((pivot) => ({ questionId: pivot.questionId, answer: 'foobar' }))
-      .filter((item) => !onlyRequiredQuestionIds.includes(item.questionId))
+      const answers = insertedSeeds.musicCategoryQuestionPivots
+        .filter((pivot) => pivot.categoryId === categoryId)
+        .map((pivot) => ({ questionId: pivot.questionId, answer: 'foobar' }))
+        .filter((item) => !onlyRequiredQuestionIds.includes(item.questionId))
 
       let error
 
       try {
         await $music.checkAndAssignAnswers(answers)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect($music).toBeInstanceOf(Music)
@@ -95,12 +100,13 @@ describe('Music question', () => {
       }
     })
 
-
     test('Answers are correctly assigned', async () => {
       const categoryId = insertedSeeds.musicCategories[0].categoryId
       const $music = new Music(categoryId)
 
-      const answers = insertedSeeds.musicCategoryQuestionPivots.filter((pivot) => pivot.categoryId === categoryId).map((pivot) => ({ questionId: pivot.questionId, answer: 'foobar' }))
+      const answers = insertedSeeds.musicCategoryQuestionPivots
+        .filter((pivot) => pivot.categoryId === categoryId)
+        .map((pivot) => ({ questionId: pivot.questionId, answer: 'foobar' }))
 
       let error
       let aggregatedQuestions
@@ -108,7 +114,7 @@ describe('Music question', () => {
       try {
         aggregatedQuestions = await $music.checkAndAssignAnswers(answers)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect($music).toBeInstanceOf(Music)
@@ -116,7 +122,9 @@ describe('Music question', () => {
       expect(Array.isArray(aggregatedQuestions)).toBe(true)
       if (Array.isArray(aggregatedQuestions)) {
         expect(aggregatedQuestions.length).toEqual(answers.length)
-        expect(aggregatedQuestions.map((item) => item.questionId)).toEqual(answers.map((item) => item.questionId))
+        expect(aggregatedQuestions.map((item) => item.questionId)).toEqual(
+          answers.map((item) => item.questionId)
+        )
       }
     })
   })

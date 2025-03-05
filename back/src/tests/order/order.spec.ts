@@ -1,26 +1,38 @@
 import { expect, beforeEach, afterEach, test, describe, mock } from 'bun:test'
 import * as R from 'remeda'
 import { HTTPException } from 'hono/http-exception'
-import { correctPayload, wellFormattedGeneratedLyrics } from '@/tests/mocks/anthropic.mock'
+import {
+  correctPayload,
+  wellFormattedGeneratedLyrics,
+} from '@/tests/mocks/anthropic.mock'
 import anthropicMockWrapper from '@/tests/mocks/anthropic.mock'
-import { dbConnector, mockFunctionWrapper, type InsertedTestSeed } from '@/tests/mocks/dbConnector.mock'
+import {
+  dbConnector,
+  mockFunctionWrapper,
+  type InsertedTestSeed,
+} from '@/tests/mocks/dbConnector.mock'
 import db from '@/tests/mocks/dbConnector.mock'
 import Order from '@/entities/order/order'
 
 mock.module('@/database/index', mockFunctionWrapper)
-mock.module('@anthropic-ai/sdk', anthropicMockWrapper({ responses: [wellFormattedGeneratedLyrics] }))
+mock.module(
+  '@anthropic-ai/sdk',
+  anthropicMockWrapper({ responses: [wellFormattedGeneratedLyrics] })
+)
 
 await dbConnector.migrateLatest()
 let insertedSeeds: InsertedTestSeed = await dbConnector.seed()
 
 const mockEmail = `test-${Date.now()}@gmail.com`
 
-async function createNewOrderWrapper () {
+async function createNewOrderWrapper() {
   const categoryId = insertedSeeds.musicCategories[0].categoryId
-  const answers = insertedSeeds.musicCategoryQuestionPivots.filter((item) => item.categoryId === categoryId).map((item) => ({
-    questionId: item.questionId,
-    answer: 'foobar',
-  }))
+  const answers = insertedSeeds.musicCategoryQuestionPivots
+    .filter((item) => item.categoryId === categoryId)
+    .map((item) => ({
+      questionId: item.questionId,
+      answer: 'foobar',
+    }))
 
   const $order = new Order()
   await $order.createNewOrder(mockEmail, categoryId, answers)
@@ -41,7 +53,7 @@ describe('Order lyrics generation', async () => {
       try {
         await $order.generateLyrics(undefined as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -60,7 +72,7 @@ describe('Order lyrics generation', async () => {
       try {
         await createdOrder.$order.generateLyrics(undefined as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -77,7 +89,7 @@ describe('Order lyrics generation', async () => {
       try {
         await createdOrder.$order.generateLyrics(123 as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -92,9 +104,11 @@ describe('Order lyrics generation', async () => {
       let error
 
       try {
-        await createdOrder.$order.generateLyrics({ answers: createdOrder.answers } as any)
+        await createdOrder.$order.generateLyrics({
+          answers: createdOrder.answers,
+        } as any)
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -110,9 +124,11 @@ describe('Order lyrics generation', async () => {
       await db.delete(dbConnector.schemas.systemPrompt)
 
       try {
-        await createdOrder.$order.generateLyrics(R.pick(correctPayload, ['answers', 'musicPrompt']))
+        await createdOrder.$order.generateLyrics(
+          R.pick(correctPayload, ['answers', 'musicPrompt'])
+        )
       } catch (err) {
-        error = err 
+        error = err
       }
 
       expect(Boolean(error)).toBe(true)
@@ -131,12 +147,14 @@ describe('Order lyrics generation', async () => {
     test('Got correct order with lyrics correctly stored', async () => {
       insertedSeeds = await dbConnector.seed()
       createdOrder = await createNewOrderWrapper()
-      
+
       let error
       try {
-        await createdOrder.$order.generateLyrics(R.pick(correctPayload, ['answers', 'musicPrompt']))
+        await createdOrder.$order.generateLyrics(
+          R.pick(correctPayload, ['answers', 'musicPrompt'])
+        )
       } catch (err) {
-        error = err 
+        error = err
       }
 
       const order = await createdOrder.$order.order

@@ -74,7 +74,9 @@ export const categoryQuestionPivotRelation = relations(
 
 export type MusicCategory = InferSelectModel<typeof musicCategory>
 export type MusicQuestion = InferSelectModel<typeof musicQuestion>
-export type MusicCategoryQuestionPivot = InferSelectModel<typeof musicCategoryQuestionPivot>
+export type MusicCategoryQuestionPivot = InferSelectModel<
+  typeof musicCategoryQuestionPivot
+>
 export type AggregatedCategory = MusicCategory & {
   questions: MusicQuestion[]
 }
