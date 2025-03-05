@@ -26,7 +26,7 @@ export const lyrics = lyricSchema.table(
       .references(() => order.orderId),
     sunoPrompt: text().notNull(),
     layout: json().$type<string[]>().default([]).notNull(), // A voir au niveau du fonctionnement
-    deprecated: boolean().default(false),
+    deprecated: boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => {
