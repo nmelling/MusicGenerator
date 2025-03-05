@@ -26,7 +26,6 @@ const newOrderForm = computed([$categoryForm, $category], (form, category): NewO
 })
 
 export async function onSubmitNewOrder(): Promise<{ success: boolean, orderId?: string }> {
-  console.log(newOrderForm.get())
   const form = newOrderForm.get()
   if (!form) {
     // message d'erreur (toast)

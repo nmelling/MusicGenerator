@@ -40,38 +40,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
-import { fetchCategory, initCategoryForm, $category, $categoryForm, setAnswer, setEmail } from '@/stores/music'
-import { onSubmitNewOrder } from '@/stores/order'
-import { useStore } from '@nanostores/vue'
+import { ref, type Ref } from 'vue';
+import { fetchCategory, initCategoryForm, $category, $categoryForm, setAnswer, setEmail } from '@/stores/music';
+import { onSubmitNewOrder } from '@/stores/order';
+import { useStore } from '@nanostores/vue';
 
 const props = defineProps({
   categoryId: {
     type: Number,
     required: true,
   },
-})
+});
 
-const category = useStore($category)
-const form = useStore($categoryForm)
+const category = useStore($category);
+const form = useStore($categoryForm);
 
 if (import.meta.env.SSR) {
-  await fetchCategory(props.categoryId)
-  initCategoryForm({ categoryId: category.value.categoryId, questions: [...category.value.questions] })
+  await fetchCategory(props.categoryId);
+  initCategoryForm({ categoryId: category.value.categoryId, questions: [...category.value.questions] });
 }
 
-const loading = ref(false)
+const loading = ref(false);
 
-async function onSubmit () {
-  loading.value = true
+async function onSubmit() {
+  loading.value = true;
   // todo cleaned validation
   // todo: Check if required fields has answer
-  const { success, orderId } = await onSubmitNewOrder()
+  const { success, orderId } = await onSubmitNewOrder();
   if (success && orderId) {
     // redirect to order route
   }
 
-  loading.value = false
+  loading.value = false;
 }
 </script>
 
