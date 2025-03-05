@@ -5,12 +5,17 @@ import * as R from 'remeda';
 
 import Order from '@/entities/order/order';
 import Music from '@/entities/music/music';
-import { newOrderSchema } from './validation';
+import { newOrderSchema, getOneOrderSchema } from './validation';
 
-const routes = new Hono().post(
-  '/',
-  zValidator('json', newOrderSchema),
-  async (c) => {
+const routes = new Hono()
+  .get('/one', zValidator('query', getOneOrderSchema), async (c) => {
+    const validated = c.req.valid('query');
+
+    const $order = new Order(validated.orderId);
+    const order = await $order.order;
+    return c.json(order, 201);
+  })
+  .post('/new', zValidator('json', newOrderSchema), async (c) => {
     const validated = c.req.valid('json');
     const { email, answers, categoryId } = validated;
 
@@ -41,8 +46,7 @@ const routes = new Hono().post(
 
     const order = await $order.order;
     return c.json({ orderId: order.orderId }, 201);
-  }
-);
+  });
 
 export type OrderRoutes = typeof routes;
 

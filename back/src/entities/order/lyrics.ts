@@ -31,7 +31,9 @@ export async function $generateLyrics(payload: LyricsPayload): Promise<string> {
               text: `
                 Tu trouveras ici les précisions concernant la chanson à générer :
                 ${payload.musicPrompt}
-                ${payload.answers.map((item) => `${item.prompt}: ${item.answer}`).join('\n')}
+                ${payload.answers
+                  .map((item) => `${item.prompt}: ${item.answer}`)
+                  .join('\n')}
               `,
             },
           ],
@@ -72,21 +74,21 @@ export function $extractLyricParts(lyrics: string): ExtractedLyricParts {
   const splitted = lyrics.split('\n\n');
   if (splitted.length === 1 && splitted[0] === lyrics) return extracted;
 
-  splitted.forEach((str) => {
+  for (const str of splitted) {
     const lowered = str.toLowerCase();
     if (lowered.includes('suno') && !extracted.sunoPrompt)
       extracted.sunoPrompt = str;
 
     const layoutIdentifier = str.match(/(\[\w*\s*\w*\])/i)?.[0];
-    if (!layoutIdentifier) return;
+    if (!layoutIdentifier) continue;
 
     extracted.layout.push(layoutIdentifier);
     if (layoutIdentifier.toLowerCase().includes('chorus')) {
       extracted.refrain = str;
-      return;
+      continue;
     }
     extracted.verses.push(str);
-  });
+  }
 
   return extracted;
 }

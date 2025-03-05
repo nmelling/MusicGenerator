@@ -6,10 +6,15 @@ import type { MusicRoutes } from '@/../../back/src/modules/music/music';
 import type { NewOrderPayload } from '@/../../back/src/modules/order/validation';
 
 export const client = hc<MusicRoutes>('http://localhost:3000/api/music');
-export type CategoryResponse = InferResponseType<typeof client.category.specific.$get>;
+export type CategoryResponse = InferResponseType<
+  typeof client.category.specific.$get
+>;
 export type Categories = InferResponseType<typeof client.category.$get>;
 
-export const $availableCategories = shared('$availableCategories', map<Categories>([]));
+export const $availableCategories = shared(
+  '$availableCategories',
+  map<Categories>([])
+);
 
 export const $category = shared('$category', deepMap<CategoryResponse>());
 
@@ -19,7 +24,7 @@ export const $categoryForm = shared(
     categoryId: undefined,
     email: '',
     answers: [],
-  }),
+  })
 );
 
 export async function fetchAvailableCategories(): Promise<void> {
@@ -52,14 +57,17 @@ export async function fetchCategory(categoryId: number): Promise<void> {
   }
 }
 
-export function initCategoryForm({ categoryId, questions }: Pick<CategoryResponse, 'categoryId' | 'questions'>): void {
+export function initCategoryForm({
+  categoryId,
+  questions,
+}: Pick<CategoryResponse, 'categoryId' | 'questions'>): void {
   $categoryForm.setKey('categoryId', categoryId);
   $categoryForm.setKey(
     'answers',
     questions.map((question) => ({
       questionId: question.questionId,
       answer: '',
-    })),
+    }))
   );
 }
 
@@ -68,5 +76,5 @@ export function setAnswer(answer: string, index: number): void {
 }
 
 export function setEmail(email: string): void {
-  $categoryForm.setKey(`email`, email);
+  $categoryForm.setKey('email', email);
 }

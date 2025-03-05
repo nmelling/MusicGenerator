@@ -13,6 +13,10 @@ export const newOrderSchema = z.object({
   categoryId: z.number().int().positive(),
 });
 
+export const getOneOrderSchema = z.object({
+  orderId: z.string().nonempty(),
+});
+
 export type NewOrderPayload = z.infer<typeof newOrderSchema>;
 export type AnswerPayload = z.infer<typeof answerSchema>;
 export type AnswersPayload = z.infer<typeof answersSchema>;

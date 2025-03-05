@@ -25,8 +25,8 @@
           <span>{{ question.question }}</span>
           <input
             type="text"
-            :placeholder="question.placeholder"
-            :required="question.isRequired"
+            :placeholder="question.placeholder || undefined"
+            :required="Boolean(question.isRequired)"
             @input="(e) => setAnswer((e.target as HTMLInputElement).value, index)"
             :value="form.answers[index]?.answer"
           />

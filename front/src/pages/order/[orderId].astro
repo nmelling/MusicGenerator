@@ -11,7 +11,7 @@ const { orderId } = Astro.params;
       orderId && 
       <Order
         client:load
-        categoryId={orderId}
+        orderId={orderId}
       />
     }
   </section>
