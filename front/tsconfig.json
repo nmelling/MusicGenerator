@@ -1,18 +1,15 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [
-    ".astro/types.d.ts",
-    "**/*"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": [".astro/types.d.ts", "**/*"],
+  "references": [{ "path": "../back/" }],
+  "exclude": ["dist"],
   "compilerOptions": {
+    "strict": true,
     "jsx": "preserve",
     "verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["src/*"]
     }
   }
 }
