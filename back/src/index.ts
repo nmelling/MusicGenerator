@@ -1,36 +1,36 @@
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { HTTPException } from 'hono/http-exception'
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 
-import { dbConnector } from '@/database'
-import music from '@/modules/music/music'
-import order from '@/modules/order/order'
+import { dbConnector } from '@/database';
+import music from '@/modules/music/music';
+import order from '@/modules/order/order';
 
-await dbConnector.migrateLatest()
-await dbConnector.initSeed()
+await dbConnector.migrateLatest();
+await dbConnector.initSeed();
 
-const app = new Hono().basePath('/api')
+const app = new Hono().basePath('/api');
 
 app.use('*', async (c, next) => {
-  let origin = '*'
-  if (Bun.env['NODE_ENV'] === 'production') origin = Bun.env['APP_BASE_URL']!
+  let origin = '*';
+  if (Bun.env['NODE_ENV'] === 'production') origin = Bun.env['APP_BASE_URL']!;
 
   const corsMiddlewareHandler = cors({
     origin,
-  })
-  return corsMiddlewareHandler(c, next)
-})
+  });
+  return corsMiddlewareHandler(c, next);
+});
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
-    return err.getResponse()
+    return err.getResponse();
   }
-  console.error(err)
-  return c.json({ error: 'Something went wrong' }, 500)
-})
+  console.error(err);
+  return c.json({ error: 'Something went wrong' }, 500);
+});
 
-const routes = app.route('/music', music).route('/order', order)
+const routes = app.route('/music', music).route('/order', order);
 
-export type AppType = typeof routes
+export type AppType = typeof routes;
 
-export default app
+export default app;

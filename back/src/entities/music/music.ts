@@ -1,26 +1,26 @@
-import { HTTPException } from 'hono/http-exception'
-import * as R from 'remeda'
-import db from '@/database/index'
+import { HTTPException } from 'hono/http-exception';
+import * as R from 'remeda';
+import db from '@/database/index';
 import type {
   AggregatedCategory,
   MusicCategory,
   MusicQuestion,
-} from '@/database/schema/music'
-import { type AnswersPayload, answersSchema } from '@/modules/order/validation'
+} from '@/database/schema/music';
+import { type AnswersPayload, answersSchema } from '@/modules/order/validation';
 
 class Music {
-  private $categoryId: number | null
-  private $musicCategory: AggregatedCategory | null
+  private $categoryId: number | null;
+  private $musicCategory: AggregatedCategory | null;
 
   constructor(categoryId: number) {
-    this.$categoryId = categoryId
-    this.$musicCategory = null
+    this.$categoryId = categoryId;
+    this.$musicCategory = null;
   }
 
   private async init(): Promise<AggregatedCategory> {
     if (!this.$categoryId)
-      throw new HTTPException(400, { message: 'NO_CATEGORY_ID' })
-    if (this.$musicCategory) return this.$musicCategory
+      throw new HTTPException(400, { message: 'NO_CATEGORY_ID' });
+    if (this.$musicCategory) return this.$musicCategory;
 
     const $category = await db.query.musicCategory.findFirst({
       where: (musicCategory, { eq }) =>
@@ -37,15 +37,15 @@ class Music {
           },
         },
       },
-    })
+    });
 
     if (!$category)
-      throw new HTTPException(404, { message: 'MUSIC_CATEGORY_NOT_FOUND' })
+      throw new HTTPException(404, { message: 'MUSIC_CATEGORY_NOT_FOUND' });
 
     const category: AggregatedCategory = {
       ...R.omit($category, ['questions']),
       questions: [],
-    }
+    };
 
     if (Array.isArray($category.questions)) {
       category.questions = R.pipe(
@@ -53,33 +53,33 @@ class Music {
         R.filter((item) => Boolean(item.question)),
         R.sortBy([R.prop('position'), 'asc']),
         R.map(({ question }) => question)
-      )
+      );
     }
 
-    this.$musicCategory = category
-    return this.$musicCategory
+    this.$musicCategory = category;
+    return this.$musicCategory;
   }
 
   public static async listAvailableCategories(): Promise<MusicCategory[]> {
     return await db.query.musicCategory.findMany({
       where: (musicCategory, { eq }) => eq(musicCategory.deprecated, false),
-    })
+    });
   }
 
   get category() {
-    return this.init()
+    return this.init();
   }
 
   public async checkAndAssignAnswers(
     answers: AnswersPayload
   ): Promise<Array<MusicQuestion & { answer: string }>> {
-    if (!this.$musicCategory) await this.init()
+    if (!this.$musicCategory) await this.init();
     if (!this.$musicCategory)
-      throw new HTTPException(404, { message: 'CATEGORY_NOT_FOUND' })
+      throw new HTTPException(404, { message: 'CATEGORY_NOT_FOUND' });
 
-    const { success } = answersSchema.safeParse(answers)
+    const { success } = answersSchema.safeParse(answers);
     if (!success)
-      throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' })
+      throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' });
 
     const aggregatedQuestions = this.$musicCategory.questions.map(
       (question) => ({
@@ -88,17 +88,17 @@ class Music {
           answers.find((answer) => answer.questionId === question.questionId)
             ?.answer ?? '',
       })
-    )
+    );
 
     const missingAnswers = R.filter(
       aggregatedQuestions,
       (item) => Boolean(item.isRequired) && !item.deprecated && !item.answer
-    )
+    );
     if (missingAnswers.length)
-      throw new HTTPException(400, { message: 'MISSING_ANSWERS' })
+      throw new HTTPException(400, { message: 'MISSING_ANSWERS' });
 
-    return aggregatedQuestions
+    return aggregatedQuestions;
   }
 }
 
-export default Music
+export default Music;

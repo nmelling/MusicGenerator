@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const lyricsPayloadSchema = z.object({
   systemPrompt: z.string().nonempty(),
@@ -10,12 +10,12 @@ export const lyricsPayloadSchema = z.object({
     })
     .array()
     .min(1),
-})
+});
 
 export const orderLyricsPayloadSchema = lyricsPayloadSchema.pick({
   musicPrompt: true,
   answers: true,
-})
+});
 
-export type OrderLyricsPayload = z.infer<typeof orderLyricsPayloadSchema>
-export type LyricsPayload = z.infer<typeof lyricsPayloadSchema>
+export type OrderLyricsPayload = z.infer<typeof orderLyricsPayloadSchema>;
+export type LyricsPayload = z.infer<typeof lyricsPayloadSchema>;

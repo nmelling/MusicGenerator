@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import {
   char,
   index,
@@ -6,14 +6,14 @@ import {
   pgSchema,
   text,
   varchar,
-} from 'drizzle-orm/pg-core'
-import { relations, type InferSelectModel } from 'drizzle-orm'
+} from 'drizzle-orm/pg-core';
+import { relations, type InferSelectModel } from 'drizzle-orm';
 
-import { musicQuestion, musicCategory } from './music'
-import { lyrics, type AggregatedLyrics } from './lyrics'
-import timestamps from './timestamps'
+import { musicQuestion, musicCategory } from './music';
+import { lyrics, type AggregatedLyrics } from './lyrics';
+import timestamps from './timestamps';
 
-export const orderSchema = pgSchema('order')
+export const orderSchema = pgSchema('order');
 
 export const order = orderSchema.table(
   'order',
@@ -30,9 +30,9 @@ export const order = orderSchema.table(
   (table) => {
     return {
       emailIndex: index('email_index').on(table.email),
-    }
+    };
   }
-)
+);
 
 export const answer = orderSchema.table('answer', {
   answerId: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -44,7 +44,7 @@ export const answer = orderSchema.table('answer', {
     .references(() => musicQuestion.questionId),
   answer: text().notNull(),
   ...timestamps,
-})
+});
 
 export const orderRelations = relations(order, ({ one, many }) => ({
   musicCategory: one(musicCategory, {
@@ -53,7 +53,7 @@ export const orderRelations = relations(order, ({ one, many }) => ({
   }),
   lyrics: many(lyrics),
   answers: many(answer),
-}))
+}));
 
 export const answerRelations = relations(answer, ({ one }) => ({
   question: one(musicQuestion, {
@@ -64,13 +64,13 @@ export const answerRelations = relations(answer, ({ one }) => ({
     fields: [answer.orderId],
     references: [order.orderId],
   }),
-}))
+}));
 
-export type Order = InferSelectModel<typeof order>
-export type Answer = InferSelectModel<typeof answer>
+export type Order = InferSelectModel<typeof order>;
+export type Answer = InferSelectModel<typeof answer>;
 export type AggregatedOrder = Order & {
-  lyrics: AggregatedLyrics[]
-  answers: Answer[]
-}
+  lyrics: AggregatedLyrics[];
+  answers: Answer[];
+};
 
 // TODO: A définir plus tard, table pour stocker les infos liées au paiement

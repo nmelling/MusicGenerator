@@ -1,45 +1,45 @@
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { migrate } from 'drizzle-orm/node-postgres/migrator'
-import { Pool } from 'pg'
-import { fileURLToPath } from 'url'
-import path from 'path'
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { Pool } from 'pg';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-import schema from '@/database/schema/index'
+import schema from '@/database/schema/index';
 
-const __filename = fileURLToPath(import.meta.url)
+const __filename = fileURLToPath(import.meta.url);
 
 class DatabaseConnector {
-  private pool: Pool
-  private $db
-  private $schemas: typeof schema
+  private pool: Pool;
+  private $db;
+  private $schemas: typeof schema;
 
   constructor() {
     this.pool = new Pool({
       connectionString: Bun.env['DATABASE_URL']!,
-    })
-    this.$schemas = schema
+    });
+    this.$schemas = schema;
 
     this.$db = drizzle(this.pool, {
       schema,
-    })
+    });
   }
 
   public get db() {
-    return this.$db
+    return this.$db;
   }
 
   public get schemas() {
-    return this.$schemas
+    return this.$schemas;
   }
 
   public async migrateLatest(): Promise<void> {
     try {
       await migrate(this.db, {
         migrationsFolder: path.join(path.dirname(__filename), './migration'),
-      })
+      });
     } catch (err) {
-      console.error(err) // use a real logger later
-      process.exit(1)
+      console.error(err); // use a real logger later
+      process.exit(1);
     }
   }
 
@@ -47,8 +47,8 @@ class DatabaseConnector {
     const rows = await this.db
       .select()
       .from(this.schemas.musicCategory)
-      .limit(1)
-    if (rows.length) return
+      .limit(1);
+    if (rows.length) return;
 
     const musicSeeds = [
       {
@@ -105,7 +105,7 @@ class DatabaseConnector {
           },
         ],
       },
-    ]
+    ];
 
     await this.db.transaction(async (trx) => {
       await trx.insert(this.schemas.systemPrompt).values({
@@ -125,31 +125,31 @@ class DatabaseConnector {
           - Proposer une chanson originale et mémorable
           Es-tu prêt à m aider à créer des chansons uniques ?
         `,
-      })
+      });
 
       for (const item of musicSeeds) {
         const [$category] = await trx
           .insert(this.schemas.musicCategory)
           .values(item.category)
-          .returning()
+          .returning();
         const $questions = await trx
           .insert(this.schemas.musicQuestion)
           .values(item.questions)
-          .returning()
+          .returning();
         await trx.insert(this.schemas.musicCategoryQuestionPivot).values(
           $questions.map((question, index) => ({
             categoryId: $category.categoryId,
             questionId: question.questionId,
             position: index + 1,
           }))
-        )
+        );
       }
-    })
+    });
   }
 }
 
-const dbConnector = new DatabaseConnector()
+const dbConnector = new DatabaseConnector();
 
-export { dbConnector }
+export { dbConnector };
 
-export default dbConnector.db
+export default dbConnector.db;

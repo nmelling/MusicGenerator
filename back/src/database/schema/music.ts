@@ -5,12 +5,12 @@ import {
   text,
   boolean,
   primaryKey,
-} from 'drizzle-orm/pg-core'
-import { relations, type InferSelectModel } from 'drizzle-orm'
-import timestamps from './timestamps'
-import { order } from './order'
+} from 'drizzle-orm/pg-core';
+import { relations, type InferSelectModel } from 'drizzle-orm';
+import timestamps from './timestamps';
+import { order } from './order';
 
-export const musicSchema = pgSchema('music')
+export const musicSchema = pgSchema('music');
 
 export const musicCategory = musicSchema.table('category', {
   categoryId: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -19,7 +19,7 @@ export const musicCategory = musicSchema.table('category', {
   prompt: text().notNull(),
   deprecated: boolean().default(false),
   ...timestamps,
-})
+});
 
 export const musicQuestion = musicSchema.table('question', {
   questionId: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -29,7 +29,7 @@ export const musicQuestion = musicSchema.table('question', {
   isRequired: boolean().default(false),
   deprecated: boolean().default(false),
   ...timestamps,
-})
+});
 
 export const musicCategoryQuestionPivot = musicSchema.table(
   'categoryQuestionPivot',
@@ -45,18 +45,18 @@ export const musicCategoryQuestionPivot = musicSchema.table(
   (t) => ({
     pk: primaryKey({ columns: [t.categoryId, t.questionId] }),
   })
-)
+);
 
 // Relations
 
 export const categoryRelations = relations(musicCategory, ({ many }) => ({
   orders: many(order),
   questions: many(musicCategoryQuestionPivot),
-}))
+}));
 
 export const questionRelations = relations(musicQuestion, ({ many }) => ({
   categories: many(musicCategoryQuestionPivot),
-}))
+}));
 
 export const categoryQuestionPivotRelation = relations(
   musicCategoryQuestionPivot,
@@ -70,15 +70,15 @@ export const categoryQuestionPivotRelation = relations(
       references: [musicCategory.categoryId],
     }),
   })
-)
+);
 
-export type MusicCategory = InferSelectModel<typeof musicCategory>
-export type MusicQuestion = InferSelectModel<typeof musicQuestion>
+export type MusicCategory = InferSelectModel<typeof musicCategory>;
+export type MusicQuestion = InferSelectModel<typeof musicQuestion>;
 export type MusicCategoryQuestionPivot = InferSelectModel<
   typeof musicCategoryQuestionPivot
->
+>;
 export type AggregatedCategory = MusicCategory & {
-  questions: MusicQuestion[]
-}
+  questions: MusicQuestion[];
+};
 
 // Peut-être ajouter de vraies tables de logs, à voir après prototypage
