@@ -1,51 +1,51 @@
-import { hc, type InferResponseType } from 'hono/client'
-import { computed } from 'nanostores'
+import { hc, type InferResponseType } from 'hono/client';
+import { computed } from 'nanostores';
 import { shared } from '@it-astro:request-nanostores';
-import { $categoryForm, $category } from '@/stores/music'
+import { $categoryForm, $category } from '@/stores/music';
 
-import type { OrderRoutes } from '@/../../back/src/modules/order/order'
-import type { NewOrderPayload } from '@/../../back/src/modules/order/validation'
+import type { OrderRoutes } from '@/../../back/src/modules/order/order';
+import type { NewOrderPayload } from '@/../../back/src/modules/order/validation';
 
-export const client = hc<OrderRoutes>('http://localhost:3000/api/order')
-export type NewOrderResponse = InferResponseType<
-typeof client.index.$post
->
+export const client = hc<OrderRoutes>('http://localhost:3000/api/order');
+export type NewOrderResponse = InferResponseType<typeof client.index.$post>;
 
 const newOrderForm = computed([$categoryForm, $category], (form, category): NewOrderPayload | null => {
-  if (!form.categoryId || !form.email || !category) return null
+  if (!form.categoryId || !form.email || !category) return null;
   return {
     categoryId: form.categoryId,
     email: form.email,
     answers: form.answers.filter((answer) => {
-      return category.questions
-      .filter((question) => question.isRequired)
-      .map((question) => question.questionId).includes(answer.questionId) ||
-      Boolean(answer.answer)
+      return (
+        category.questions
+          .filter((question) => question.isRequired)
+          .map((question) => question.questionId)
+          .includes(answer.questionId) || Boolean(answer.answer)
+      );
     }),
-  }
-})
+  };
+});
 
-export async function onSubmitNewOrder(): Promise<{ success: boolean, orderId?: string }> {
-  const form = newOrderForm.get()
+export async function onSubmitNewOrder(): Promise<{ success: boolean; orderId?: string }> {
+  const form = newOrderForm.get();
   if (!form) {
     // message d'erreur (toast)
-    return { success: false }
+    return { success: false };
   }
 
-  let orderId = ''
+  let orderId = '';
   try {
     const res = await client.index.$post({
       json: form,
-    })
+    });
 
     if (res.ok) {
-      const order = await res.json()
-      orderId = order.orderId
-      console.log({ order })
+      const order = await res.json();
+      orderId = order.orderId;
+      console.log({ order });
     }
   } catch (err) {
-    console.log(err)
-    return { success: false }
+    console.log(err);
+    return { success: false };
   }
-  return { success: true, orderId }
+  return { success: true, orderId };
 }

@@ -19,14 +19,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import Logo from '@/assets/astro.svg'
+import { ref } from 'vue';
+import Logo from '@/assets/astro.svg';
 
 const navs = ref([
   { navId: 'home', label: 'Accueil', to: '/' },
   { navId: 'musics', label: 'Créez votre chanson', to: '/music/category/availables' },
   { navId: 'contact', label: 'Contact', to: '/contact' },
-])
+]);
 </script>
 
 <style>

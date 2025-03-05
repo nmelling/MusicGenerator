@@ -18,13 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import { fetchAvailableCategories, $availableCategories } from '@/stores/music'
-import { useStore } from '@nanostores/vue'
+import { fetchAvailableCategories, $availableCategories } from '@/stores/music';
+import { useStore } from '@nanostores/vue';
 
 // todo: pagination
 
-if (import.meta.env.SSR) await fetchAvailableCategories()
-const availableCategories = useStore($availableCategories)
+if (import.meta.env.SSR) await fetchAvailableCategories();
+const availableCategories = useStore($availableCategories);
 </script>
 
 <style>
