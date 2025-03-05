@@ -1,13 +1,14 @@
 ---
-export const prerender = true;
-import PublicLayout from '../layouts/PublicLayout.astro';
+import PublicLayout from '@/layouts/PublicLayout.astro';
+import AvailableCategories from '@/components/music/AvailableCategories.vue';
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <PublicLayout>
-	<section>
-		
-	</section>
+  <section>
+    <AvailableCategories
+      client:load
+    />
+  </section>
 </PublicLayout>
-

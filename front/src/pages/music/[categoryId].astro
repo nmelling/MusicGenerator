@@ -5,7 +5,7 @@ import Category from '@/components/music/Category.vue';
 const { categoryId } = Astro.params;
 const parsedCategoryId = Number(categoryId);
 
-if (isNaN(parsedCategoryId)) {
+if (Number.isNaN(parsedCategoryId)) {
   // redirect or display error message
 }
 ---
@@ -13,7 +13,7 @@ if (isNaN(parsedCategoryId)) {
 <PublicLayout>
   <section>
     {
-      !isNaN(parsedCategoryId) && 
+      !Number.isNaN(parsedCategoryId) && 
       <Category
         client:load
         categoryId={parsedCategoryId}
