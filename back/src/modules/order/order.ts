@@ -40,7 +40,7 @@ const routes = new Hono().post(
     }
 
     const order = await $order.order;
-    return c.json(order, 201);
+    return c.json({ orderId: order.orderId }, 201);
   }
 );
 
