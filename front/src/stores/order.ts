@@ -39,9 +39,8 @@ export async function onSubmitNewOrder(): Promise<{ success: boolean; orderId?: 
     });
 
     if (res.ok) {
-      const order = await res.json();
-      orderId = order.orderId;
-      console.log({ order });
+      const { orderId: $orderId } = await res.json();
+      orderId = $orderId
     }
   } catch (err) {
     console.log(err);

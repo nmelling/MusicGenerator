@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { navigate } from 'astro:transitions/client';
 import { ref, type Ref } from 'vue';
 import { fetchCategory, initCategoryForm, $category, $categoryForm, setAnswer, setEmail } from '@/stores/music';
 import { onSubmitNewOrder } from '@/stores/order';
@@ -68,7 +69,7 @@ async function onSubmit() {
   // todo: Check if required fields has answer
   const { success, orderId } = await onSubmitNewOrder();
   if (success && orderId) {
-    // redirect to order route
+    navigate(`/order/${orderId}`, { history: 'push' });
   }
 
   loading.value = false;
