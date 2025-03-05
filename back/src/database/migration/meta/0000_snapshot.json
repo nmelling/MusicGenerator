@@ -1,5 +1,5 @@
 {
-  "id": "eebe396b-0762-47e8-b537-2ed635a3f134",
+  "id": "3553b7de-f11a-419f-8c89-3ffe2a5fee46",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -83,8 +83,12 @@
           "tableFrom": "lyrics",
           "tableTo": "order",
           "schemaTo": "order",
-          "columnsFrom": ["orderId"],
-          "columnsTo": ["orderId"],
+          "columnsFrom": [
+            "orderId"
+          ],
+          "columnsTo": [
+            "orderId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -144,14 +148,26 @@
           "tableFrom": "refrain",
           "tableTo": "lyrics",
           "schemaTo": "lyrics",
-          "columnsFrom": ["lyricsId"],
-          "columnsTo": ["lyricsId"],
+          "columnsFrom": [
+            "lyricsId"
+          ],
+          "columnsTo": [
+            "lyricsId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "refrain_lyricId": {
+          "name": "refrain_lyricId",
+          "nullsNotDistinct": false,
+          "columns": [
+            "lyricsId"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -248,8 +264,12 @@
           "tableFrom": "verse",
           "tableTo": "lyrics",
           "schemaTo": "lyrics",
-          "columnsFrom": ["lyricsId"],
-          "columnsTo": ["lyricsId"],
+          "columnsFrom": [
+            "lyricsId"
+          ],
+          "columnsTo": [
+            "lyricsId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -365,8 +385,12 @@
           "tableFrom": "categoryQuestionPivot",
           "tableTo": "category",
           "schemaTo": "music",
-          "columnsFrom": ["categoryId"],
-          "columnsTo": ["categoryId"],
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "categoryId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -375,8 +399,12 @@
           "tableFrom": "categoryQuestionPivot",
           "tableTo": "question",
           "schemaTo": "music",
-          "columnsFrom": ["questionId"],
-          "columnsTo": ["questionId"],
+          "columnsFrom": [
+            "questionId"
+          ],
+          "columnsTo": [
+            "questionId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -384,7 +412,10 @@
       "compositePrimaryKeys": {
         "categoryQuestionPivot_categoryId_questionId_pk": {
           "name": "categoryQuestionPivot_categoryId_questionId_pk",
-          "columns": ["categoryId", "questionId"]
+          "columns": [
+            "categoryId",
+            "questionId"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -539,8 +570,12 @@
           "tableFrom": "answer",
           "tableTo": "order",
           "schemaTo": "order",
-          "columnsFrom": ["orderId"],
-          "columnsTo": ["orderId"],
+          "columnsFrom": [
+            "orderId"
+          ],
+          "columnsTo": [
+            "orderId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -549,8 +584,12 @@
           "tableFrom": "answer",
           "tableTo": "question",
           "schemaTo": "music",
-          "columnsFrom": ["questionId"],
-          "columnsTo": ["questionId"],
+          "columnsFrom": [
+            "questionId"
+          ],
+          "columnsTo": [
+            "questionId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -582,6 +621,19 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "modificationCounter": {
+          "name": "modificationCounter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "validated_at": {
+          "name": "validated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -626,8 +678,12 @@
           "tableFrom": "order",
           "tableTo": "category",
           "schemaTo": "music",
-          "columnsFrom": ["categoryId"],
-          "columnsTo": ["categoryId"],
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "categoryId"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

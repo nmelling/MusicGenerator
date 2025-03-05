@@ -6,6 +6,7 @@ import {
   pgSchema,
   text,
   varchar,
+  timestamp,
 } from 'drizzle-orm/pg-core';
 import { relations, type InferSelectModel } from 'drizzle-orm';
 
@@ -25,6 +26,8 @@ export const order = orderSchema.table(
       .notNull()
       .references(() => musicCategory.categoryId),
     email: varchar({ length: 255 }).notNull(),
+    modificationCounter: integer().notNull().default(0),
+    validated_at: timestamp(),
     ...timestamps,
   },
   (table) => {

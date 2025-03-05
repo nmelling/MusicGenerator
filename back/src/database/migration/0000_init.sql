@@ -23,7 +23,8 @@ CREATE TABLE "lyrics"."refrain" (
 	"text" text NOT NULL,
 	"updated_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp
+	"deleted_at" timestamp,
+	CONSTRAINT "refrain_lyricId" UNIQUE("lyricsId")
 );
 --> statement-breakpoint
 CREATE TABLE "lyrics"."systemPrompt" (
@@ -85,6 +86,8 @@ CREATE TABLE "order"."order" (
 	"orderId" char(20) PRIMARY KEY NOT NULL,
 	"categoryId" integer NOT NULL,
 	"email" varchar(255) NOT NULL,
+	"modificationCounter" integer DEFAULT 0 NOT NULL,
+	"validated_at" timestamp,
 	"updated_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
