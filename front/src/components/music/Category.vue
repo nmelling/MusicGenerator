@@ -5,6 +5,7 @@
     </header>
     <section>
       <form
+        v-if="Array.isArray(form.answers)"
         class="flex flex-col"
       >
         <label class="flex flex-col py-5">

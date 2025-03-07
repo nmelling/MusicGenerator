@@ -202,11 +202,11 @@ class Order {
     if (availableUpdatableLyrics.deprecated)
       throw new HTTPException(400, { message: 'DEPRECATED_LYRIC_PROVIDED' });
 
-    // Récupérer le systemPromt + musicPrompt + answers
     const $music = new Music(this.$order.categoryId);
     const musicCategory = await $music.category;
     if (!musicCategory)
       throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' });
+    // TODO: Récupérer le systemPromt + musicPrompt + answers
   }
 
   get order() {

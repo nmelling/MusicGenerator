@@ -4,6 +4,7 @@ import {
   type LyricsPayload,
   type GenerateNewLyricsPart,
   lyricsPayloadSchema,
+  generateNewLyricsPartSchema,
 } from './validation';
 
 export async function $generateLyrics(payload: LyricsPayload): Promise<string> {
@@ -97,4 +98,9 @@ export function $extractLyricParts(lyrics: string): ExtractedLyricParts {
   return extracted;
 }
 
-export async function $generateNewLyricsPart(payload: GenerateNewLyricsPart) {}
+export async function $generateNewLyricsPart(payload: GenerateNewLyricsPart) {
+  const { success } = generateNewLyricsPartSchema.safeParse(payload);
+  if (!success)
+    throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' });
+  // TODO
+}

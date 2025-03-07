@@ -27,7 +27,12 @@ const routes = new Hono()
       await $order.generateNewLyricsPart(
         R.pick(validated, ['lyricsId', 'selectedParts'])
       );
-    } catch (error) {}
+    } catch (error) {
+      // TODO: logger
+      throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' });
+    }
+
+    return c.text('OK', 200);
   })
   .post('/new', zValidator('json', newOrderSchema), async (c) => {
     const validated = c.req.valid('json');
