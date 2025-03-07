@@ -3,7 +3,7 @@ import { map, deepMap } from 'nanostores';
 import { shared } from '@it-astro:request-nanostores';
 
 import type { MusicRoutes } from '@/../../back/src/modules/music/music';
-import type { NewOrderPayload } from '@/../../back/src/modules/order/validation';
+import type { NewOrderPayload } from '@/stores/order';
 
 export const client = hc<MusicRoutes>('http://localhost:3000/api/music');
 export type CategoryResponse = InferResponseType<
@@ -20,7 +20,7 @@ export const $category = shared('$category', deepMap<CategoryResponse>());
 
 export const $categoryForm = shared(
   '$categoryForm',
-  deepMap<Partial<NewOrderPayload> & Pick<NewOrderPayload, 'answers'>>({
+  deepMap<Partial<NewOrderPayload>>({
     categoryId: undefined,
     email: '',
     answers: [],

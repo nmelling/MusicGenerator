@@ -1,6 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { HTTPException } from 'hono/http-exception';
-import { type LyricsPayload, lyricsPayloadSchema } from './validation';
+import {
+  type LyricsPayload,
+  type GenerateNewLyricsPart,
+  lyricsPayloadSchema,
+} from './validation';
 
 export async function $generateLyrics(payload: LyricsPayload): Promise<string> {
   const apiKey = Bun.env['ANTHROPIC_API_KEY'];
@@ -92,3 +96,5 @@ export function $extractLyricParts(lyrics: string): ExtractedLyricParts {
 
   return extracted;
 }
+
+export async function $generateNewLyricsPart(payload: GenerateNewLyricsPart) {}

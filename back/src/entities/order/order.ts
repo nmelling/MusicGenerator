@@ -13,8 +13,11 @@ import {
 } from '@/entities/order/lyrics';
 import {
   orderLyricsPayloadSchema,
+  generateNewLyricsPartSchema,
   type OrderLyricsPayload,
+  type GenerateNewLyricsPart,
 } from '@/entities/order/validation';
+import Music from '@/entities/music/music';
 
 class Order {
   private $orderId: string;
@@ -180,6 +183,30 @@ class Order {
       throw new HTTPException(404, { message: 'NO_ACTIVE_LYRICS' });
 
     return activeLyrics;
+  }
+
+  public async generateNewLyricsPart(payload: GenerateNewLyricsPart) {
+    const { success } = generateNewLyricsPartSchema.safeParse(payload);
+    if (!success)
+      throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' });
+
+    await this.init();
+    if (!this.$order)
+      throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
+
+    const availableUpdatableLyrics = this.$order.lyrics.find(
+      (lyric) => lyric.lyricsId === payload.lyricsId
+    );
+    if (!availableUpdatableLyrics)
+      throw new HTTPException(400, { message: 'WRONG_LYRIC_PROVIDED' });
+    if (availableUpdatableLyrics.deprecated)
+      throw new HTTPException(400, { message: 'DEPRECATED_LYRIC_PROVIDED' });
+
+    // Récupérer le systemPromt + musicPrompt + answers
+    const $music = new Music(this.$order.categoryId);
+    const musicCategory = await $music.category;
+    if (!musicCategory)
+      throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' });
   }
 
   get order() {

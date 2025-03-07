@@ -17,5 +17,11 @@ export const orderLyricsPayloadSchema = lyricsPayloadSchema.pick({
   answers: true,
 });
 
+export const generateNewLyricsPartSchema = z.object({
+  lyricsId: z.string().nonempty(),
+  selectedParts: z.optional(z.string().nonempty().array().min(1)),
+});
+
 export type OrderLyricsPayload = z.infer<typeof orderLyricsPayloadSchema>;
 export type LyricsPayload = z.infer<typeof lyricsPayloadSchema>;
+export type GenerateNewLyricsPart = z.infer<typeof generateNewLyricsPartSchema>;

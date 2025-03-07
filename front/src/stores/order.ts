@@ -1,18 +1,18 @@
-import { hc, type InferResponseType } from 'hono/client';
+import { hc, type InferResponseType, type InferRequestType } from 'hono/client';
 import { computed, deepMap } from 'nanostores';
 import { shared } from '@it-astro:request-nanostores';
 import { $categoryForm, $category } from '@/stores/music';
 
 import type { OrderRoutes } from '@/../../back/src/modules/order/order';
-import type { NewOrderPayload } from '@/../../back/src/modules/order/validation';
 
 export const client = hc<OrderRoutes>('http://localhost:3000/api/order');
-export type NewOrderResponse = InferResponseType<typeof client.new.$post>;
+export type NewOrderPayload = InferRequestType<typeof client.new.$post>['json'];
 
 const newOrderForm = computed(
   [$categoryForm, $category],
   (form, category): NewOrderPayload | null => {
-    if (!form.categoryId || !form.email || !category) return null;
+    if (!form.categoryId || !form.email || !form.answers || !category)
+      return null;
     return {
       categoryId: form.categoryId,
       email: form.email,
@@ -55,11 +55,30 @@ export async function onSubmitNewOrder(): Promise<{
   return { success: true, orderId };
 }
 
-// todo fix type OrderResponse
 export type OrderResponse = InferResponseType<typeof client.one.$get>;
 export const $order = shared('$order', deepMap<OrderResponse>());
 
 export async function fetchOrder(orderId: string) {
+  try {
+    const res = await client.one.$get({
+      query: {
+        orderId,
+      },
+    });
+    if (res.ok) {
+      const order = await res.json();
+      $order.set(order);
+    }
+  } catch (err) {
+    // toast erreur
+  }
+}
+
+export async function modifyLyrics(
+  orderId: string,
+  lyricsId: string,
+  selectedParts: string[] | undefined
+) {
   try {
     const res = await client.one.$get({
       query: {
