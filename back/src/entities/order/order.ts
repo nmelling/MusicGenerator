@@ -1,5 +1,6 @@
 import { sql, desc } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
+import * as R from 'remeda';
 
 import db from '@/database/index';
 import { dbConnector } from '@/database/index';
@@ -12,10 +13,9 @@ import {
   type ExtractedLyricParts,
 } from '@/entities/order/lyrics';
 import {
-  orderLyricsPayloadSchema,
   generateNewLyricsPartSchema,
-  type OrderLyricsPayload,
   type GenerateNewLyricsPart,
+  type LyricsPayload,
 } from '@/entities/order/validation';
 import Music from '@/entities/music/music';
 
@@ -44,6 +44,7 @@ class Order {
           },
         },
         answers: true,
+        musicCategory: true,
       },
     });
 
@@ -74,6 +75,7 @@ class Order {
         where: (order, { eq }) => eq(order.orderId, inserted.orderId),
         with: {
           answers: true,
+          musicCategory: true,
         },
       });
 
@@ -86,7 +88,6 @@ class Order {
     this.$order = {
       ...order,
       lyrics: [],
-      answers: [],
     };
 
     this.$orderId = order.orderId;
@@ -94,15 +95,9 @@ class Order {
     return order.orderId;
   }
 
-  public async generateLyrics(
-    payload: OrderLyricsPayload
-  ): Promise<AggregatedLyrics> {
+  private async formatLyricPayload(): Promise<LyricsPayload> {
     if (!this.$order)
       throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
-
-    const { success } = orderLyricsPayloadSchema.safeParse(payload);
-    if (!success)
-      throw new HTTPException(400, { message: 'INCORRECT_PAYLOAD_PROVIDED' });
 
     const [systemPromptRow] = await db
       .select()
@@ -111,14 +106,36 @@ class Order {
       .orderBy(desc(dbConnector.schemas.systemPrompt.systemPromptId));
     if (!systemPromptRow) {
       // todo logger
-      console.log('SYSTEM_PROMPT_NOT_FOUND');
       throw new HTTPException(500, { message: 'INTERNAL_SERVER_ERROR' });
     }
 
-    const generatedLyrics = await $generateLyrics({
-      ...payload,
+    const $music = new Music(this.$order.categoryId);
+    const musicCategory = await $music.category;
+    if (!musicCategory)
+      throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' });
+
+    const aggregatedAnswers = await $music.checkAndAssignAnswers(
+      this.$order.answers.map((item) => R.pick(item, ['questionId', 'answer']))
+    );
+    const formattedAnswers = R.pipe(
+      aggregatedAnswers,
+      R.map((item) => R.pick(item, ['prompt', 'answer']))
+    );
+
+    return {
       systemPrompt: systemPromptRow.prompt,
-    });
+      musicPrompt: musicCategory.prompt,
+      answers: formattedAnswers,
+    };
+  }
+
+  public async generateLyrics(): Promise<AggregatedLyrics> {
+    if (!this.$order)
+      throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
+
+    const lyricsPayload = await this.formatLyricPayload();
+
+    const generatedLyrics = await $generateLyrics(lyricsPayload);
     if (!generatedLyrics)
       throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });
 
@@ -202,10 +219,16 @@ class Order {
     if (availableUpdatableLyrics.deprecated)
       throw new HTTPException(400, { message: 'DEPRECATED_LYRIC_PROVIDED' });
 
-    const $music = new Music(this.$order.categoryId);
-    const musicCategory = await $music.category;
-    if (!musicCategory)
-      throw new HTTPException(400, { message: 'MUSIC_CATEGORY_NOT_FOUND' });
+    const lyricsPayload = await this.formatLyricPayload();
+
+    let generatedLyrics = '';
+    if (!payload.selectedParts?.length) {
+      generatedLyrics = await $generateLyrics(lyricsPayload);
+    } else {
+      // update parts only
+    }
+    if (!generatedLyrics)
+      throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });
     // TODO: Récupérer le systemPromt + musicPrompt + answers
   }
 

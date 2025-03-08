@@ -51,7 +51,7 @@ describe('Order lyrics generation', async () => {
       const $order = new Order();
 
       try {
-        await $order.generateLyrics(undefined as any);
+        await $order.generateLyrics();
       } catch (err) {
         error = err;
       }
@@ -62,71 +62,17 @@ describe('Order lyrics generation', async () => {
         expect(error.status).toBe(404);
         expect(error.message).toBe('ORDER_NOT_FOUND');
       }
-    });
-
-    test('Payload: none', async () => {
-      if (!createdOrder) createdOrder = await createNewOrderWrapper();
-
-      let error;
-
-      try {
-        await createdOrder.$order.generateLyrics(undefined as any);
-      } catch (err) {
-        error = err;
-      }
-
-      expect(Boolean(error)).toBe(true);
-      expect(error).toBeInstanceOf(HTTPException);
-      if (error instanceof HTTPException) {
-        expect(error.status).toBe(400);
-        expect(error.message).toBe('INCORRECT_PAYLOAD_PROVIDED');
-      }
-    });
-
-    test('Payload: wrong format provided', async () => {
-      let error;
-
-      try {
-        await createdOrder.$order.generateLyrics(123 as any);
-      } catch (err) {
-        error = err;
-      }
-
-      expect(Boolean(error)).toBe(true);
-      expect(error).toBeInstanceOf(HTTPException);
-      if (error instanceof HTTPException) {
-        expect(error.status).toBe(400);
-        expect(error.message).toBe('INCORRECT_PAYLOAD_PROVIDED');
-      }
-    });
-
-    test('Payload: well formatted but missing key', async () => {
-      let error;
-
-      try {
-        await createdOrder.$order.generateLyrics({
-          answers: createdOrder.answers,
-        } as any);
-      } catch (err) {
-        error = err;
-      }
-
-      expect(Boolean(error)).toBe(true);
-      expect(error).toBeInstanceOf(HTTPException);
-      if (error instanceof HTTPException) {
-        expect(error.status).toBe(400);
-        expect(error.message).toBe('INCORRECT_PAYLOAD_PROVIDED');
-      }
+      createdOrder = await createNewOrderWrapper();
     });
 
     test('No system prompt', async () => {
+      if (!createdOrder) createdOrder = await createNewOrderWrapper();
+
       let error;
       await db.delete(dbConnector.schemas.systemPrompt);
 
       try {
-        await createdOrder.$order.generateLyrics(
-          R.pick(correctPayload, ['answers', 'musicPrompt'])
-        );
+        await createdOrder.$order.generateLyrics();
       } catch (err) {
         error = err;
       }
@@ -150,9 +96,7 @@ describe('Order lyrics generation', async () => {
 
       let error;
       try {
-        await createdOrder.$order.generateLyrics(
-          R.pick(correctPayload, ['answers', 'musicPrompt'])
-        );
+        await createdOrder.$order.generateLyrics();
       } catch (err) {
         error = err;
       }

@@ -10,7 +10,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations, type InferSelectModel } from 'drizzle-orm';
 
-import { musicQuestion, musicCategory } from './music';
+import { musicQuestion, musicCategory, type MusicCategory } from './music';
 import { lyrics, type AggregatedLyrics } from './lyrics';
 import timestamps from './timestamps';
 
@@ -74,6 +74,7 @@ export type Answer = InferSelectModel<typeof answer>;
 export type AggregatedOrder = Order & {
   lyrics: AggregatedLyrics[];
   answers: Answer[];
+  musicCategory: MusicCategory;
 };
 
 // TODO: A définir plus tard, table pour stocker les infos liées au paiement
