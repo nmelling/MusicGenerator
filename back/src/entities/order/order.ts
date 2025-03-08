@@ -215,7 +215,7 @@ class Order {
       (lyric) => lyric.lyricsId === payload.lyricsId
     );
     if (!availableUpdatableLyrics)
-      throw new HTTPException(400, { message: 'WRONG_LYRIC_PROVIDED' });
+      throw new HTTPException(404, { message: 'WRONG_LYRIC_PROVIDED' });
     if (availableUpdatableLyrics.deprecated)
       throw new HTTPException(400, { message: 'DEPRECATED_LYRIC_PROVIDED' });
 
