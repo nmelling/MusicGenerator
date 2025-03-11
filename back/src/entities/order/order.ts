@@ -20,8 +20,8 @@ import {
 import Music from '@/entities/music/music';
 
 class Order {
-  private $orderId: string;
-  private $order: AggregatedOrder | null;
+  protected $orderId: string;
+  protected $order: AggregatedOrder | null;
 
   constructor(orderId?: string) {
     this.$orderId = orderId || '';
@@ -30,7 +30,7 @@ class Order {
     if (orderId) this.init();
   }
 
-  private async init(): Promise<AggregatedOrder> {
+  protected async init(): Promise<AggregatedOrder> {
     if (!this.$orderId)
       throw new HTTPException(400, { message: 'NO_ORDER_ID' });
 
@@ -95,7 +95,7 @@ class Order {
     return order.orderId;
   }
 
-  private async formatLyricPayload(): Promise<LyricsPayload> {
+  protected async $formatLyricPayload(): Promise<LyricsPayload> {
     if (!this.$order)
       throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
 
@@ -129,16 +129,9 @@ class Order {
     };
   }
 
-  public async generateLyrics(): Promise<AggregatedLyrics> {
-    if (!this.$order)
-      throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
-
-    const lyricsPayload = await this.formatLyricPayload();
-
-    const generatedLyrics = await $generateLyrics(lyricsPayload);
-    if (!generatedLyrics)
-      throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });
-
+  protected async $storeGeneratedLyrics(
+    generatedLyrics: string
+  ): Promise<AggregatedLyrics> {
     const lyricParts: ExtractedLyricParts = $extractLyricParts(generatedLyrics);
     if (!lyricParts.sunoPrompt) {
       // todo logger
@@ -202,6 +195,19 @@ class Order {
     return activeLyrics;
   }
 
+  public async generateLyrics(): Promise<AggregatedLyrics> {
+    if (!this.$order)
+      throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
+
+    const lyricsPayload = await this.$formatLyricPayload();
+
+    const generatedLyrics = await $generateLyrics(lyricsPayload);
+    if (!generatedLyrics)
+      throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });
+
+    return await this.$storeGeneratedLyrics(generatedLyrics);
+  }
+
   public async generateNewLyricsPart(payload: GenerateNewLyricsPart) {
     const { success } = generateNewLyricsPartSchema.safeParse(payload);
     if (!success)
@@ -219,7 +225,7 @@ class Order {
     if (availableUpdatableLyrics.deprecated)
       throw new HTTPException(400, { message: 'DEPRECATED_LYRIC_PROVIDED' });
 
-    const lyricsPayload = await this.formatLyricPayload();
+    const lyricsPayload = await this.$formatLyricPayload();
 
     let generatedLyrics = '';
     if (!payload.selectedParts?.length) {
@@ -230,6 +236,8 @@ class Order {
     if (!generatedLyrics)
       throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });
     // TODO: Récupérer le systemPromt + musicPrompt + answers
+
+    return await this.$storeGeneratedLyrics(generatedLyrics);
   }
 
   get order() {
