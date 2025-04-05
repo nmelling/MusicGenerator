@@ -12,7 +12,7 @@ export default defineConfig({
   adapter: node({
         mode: 'standalone',
     }),
-  integrations: [vue(), inoxToolsRequestNanostores()],
+  integrations: [vue({ devtools: true }), inoxToolsRequestNanostores()],
   vite: {
     plugins: [tailwindcss()],
   },

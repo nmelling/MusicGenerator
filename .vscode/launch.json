@@ -28,9 +28,9 @@
             "type": "bun",
             "request": "attach",
             "name": "Attach Bun",
-            "url": "ws://localhost:6499/w865o5aa5ko",
+            "url": "ws://0.0.0.0:4000/music-generator",
             "stopOnEntry": false,
             "internalConsoleOptions": "neverOpen"
-        }
+        },
     ]
 }

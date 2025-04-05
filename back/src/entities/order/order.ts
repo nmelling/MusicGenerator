@@ -11,6 +11,7 @@ import {
   $generateLyrics,
   $extractLyricParts,
   type ExtractedLyricParts,
+  $generateNewLyricsPart,
 } from '@/entities/order/lyrics';
 import {
   generateNewLyricsPartSchema,
@@ -231,7 +232,10 @@ class Order {
     if (!payload.selectedParts?.length) {
       generatedLyrics = await $generateLyrics(lyricsPayload);
     } else {
-      // update parts only
+      generatedLyrics = await $generateNewLyricsPart({
+        ...lyricsPayload,
+        ...R.pick(payload, ['selectedParts']),
+      });
     }
     if (!generatedLyrics)
       throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });

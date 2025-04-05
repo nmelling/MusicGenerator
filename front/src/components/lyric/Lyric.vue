@@ -27,7 +27,7 @@
         v-if="editLyric"
         :title="!selectedVerses.length ? `Aucune partie de la chanson n'est sélectionnée` : ''"
         :disabled="!selectedVerses.length"
-        @click="$emit('edited', { lyrics: lyric.lyricsId, selectedParts: selectedVerses })"
+        @click="$emit('edited', { lyricsId: lyric.lyricsId, selectedParts: selectedVerses })"
       >Modifier</button>
     </section>
     <section>

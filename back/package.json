@@ -2,7 +2,7 @@
   "name": "back",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "debug": "bun run --inspect=4000 --hot src/index.ts",
+    "debug": "bun run --inspect=localhost:4000/music-generator --hot src/index.ts",
     "test:watch": "bun test --watch --coverage"
   },
   "dependencies": {

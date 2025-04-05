@@ -80,16 +80,28 @@ export async function modifyLyrics(
   selectedParts: string[] | undefined
 ) {
   try {
-    const res = await client.one.$get({
-      query: {
+    const res = await client[':orderId'].lyrics.$patch({
+      param: {
         orderId,
       },
+      json: {
+        lyricsId,
+        selectedParts,
+      },
     });
-    if (res.ok) {
-      const order = await res.json();
-      $order.set(order);
-    }
-  } catch (err) {
-    // toast erreur
-  }
+  } catch (error) {}
+
+  // try {
+  //   const res = await client.one.$get({
+  //     query: {
+  //       orderId,
+  //     },
+  //   });
+  //   if (res.ok) {
+  //     const order = await res.json();
+  //     $order.set(order);
+  //   }
+  // } catch (err) {
+  //   // toast erreur
+  // }
 }
