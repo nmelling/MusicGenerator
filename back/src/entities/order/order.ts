@@ -1,4 +1,4 @@
-import { sql, desc } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import * as R from 'remeda';
 
@@ -23,10 +23,12 @@ import Music from '@/entities/music/music';
 class Order {
   protected $orderId: string;
   protected $order: AggregatedOrder | null;
+  protected $maxLyricsPerOrder: number;
 
   constructor(orderId?: string) {
     this.$orderId = orderId || '';
     this.$order = null;
+    this.$maxLyricsPerOrder = Number(Bun.env['MAX_LYRICS_PER_ORDER']) || 3;
 
     if (orderId) this.init();
   }
@@ -38,6 +40,7 @@ class Order {
     const order = await db.query.order.findFirst({
       where: (order, { eq }) => eq(order.orderId, String(this.$orderId)),
       with: {
+        // Regarder pour filter la donnée des colonnes
         lyrics: {
           with: {
             verses: true,
@@ -60,11 +63,11 @@ class Order {
     categoryId: number,
     answers: AnswerPayload[]
   ): Promise<string> {
-    const order = await db.transaction(async (trx) => {
+    const orderId = await db.transaction(async (trx) => {
       const [inserted] = await trx
         .insert(dbConnector.schemas.order)
         .values({ email, categoryId })
-        .returning();
+        .returning({ orderId: dbConnector.schemas.order.orderId });
 
       await trx
         .insert(dbConnector.schemas.answer)
@@ -72,28 +75,16 @@ class Order {
           answers.map((item) => ({ orderId: inserted.orderId, ...item }))
         );
 
-      const order = trx.query.order.findFirst({
-        where: (order, { eq }) => eq(order.orderId, inserted.orderId),
-        with: {
-          answers: true,
-          musicCategory: true,
-        },
-      });
-
-      return order;
+      return inserted.orderId;
     });
 
-    if (!order)
+    if (!orderId)
       throw new HTTPException(400, { message: 'ORDER_NOT_GENERATED' });
 
-    this.$order = {
-      ...order,
-      lyrics: [],
-    };
+    this.$orderId = orderId;
+    await this.init();
 
-    this.$orderId = order.orderId;
-
-    return order.orderId;
+    return orderId;
   }
 
   protected async $formatLyricPayload(): Promise<LyricsPayload> {
@@ -131,7 +122,8 @@ class Order {
   }
 
   protected async $storeGeneratedLyrics(
-    generatedLyrics: string
+    generatedLyrics: string,
+    isPartialLyricGeneration = false
   ): Promise<AggregatedLyrics> {
     const lyricParts: ExtractedLyricParts = $extractLyricParts(generatedLyrics);
     if (!lyricParts.sunoPrompt) {
@@ -144,12 +136,58 @@ class Order {
     }
 
     let lyrics: AggregatedLyrics[] = [];
+
     try {
       lyrics = await db.transaction(async (trx) => {
+        if (isPartialLyricGeneration) {
+          const existingLyric = await trx.query.lyrics.findFirst({
+            with: {
+              verses: true,
+              refrain: true,
+            },
+            where: and(
+              eq(dbConnector.schemas.lyrics.orderId, this.$orderId),
+              eq(dbConnector.schemas.lyrics.deprecated, false)
+            ),
+          });
+
+          if (!existingLyric) {
+            throw new HTTPException(404, {
+              message: 'PREVIOUS_ACTIVE_LYRIC_NOT_FOUND',
+            });
+          }
+
+          if (!lyricParts.refrain)
+            lyricParts.refrain = existingLyric.refrain.text;
+
+          lyricParts.verses = existingLyric.layout
+            .map((layoutName) => {
+              if (layoutName.toLowerCase().includes('chorus')) return '';
+              let part =
+                lyricParts.verses.find((text) => text.startsWith(layoutName)) ||
+                '';
+              if (!part)
+                part =
+                  existingLyric.verses.find((item) =>
+                    item.text.startsWith(layoutName)
+                  )?.text || '';
+              if (!part) {
+                // todo: logger
+                console.error(
+                  `Incomplete song: No text found for layout: ${layoutName}`
+                );
+              }
+              return part;
+            })
+            .filter((text) => text.length > 0);
+
+          lyricParts.layout = existingLyric.layout;
+        }
+
         await trx
           .update(dbConnector.schemas.lyrics)
           .set({ deprecated: true })
-          .where(sql`${dbConnector.schemas.lyrics.orderId} = ${this.$orderId}`);
+          .where(eq(dbConnector.schemas.lyrics.orderId, this.$orderId));
 
         const [insertedLyrics] = await trx
           .insert(dbConnector.schemas.lyrics)
@@ -218,6 +256,12 @@ class Order {
     if (!this.$order)
       throw new HTTPException(404, { message: 'ORDER_NOT_FOUND' });
 
+    if (this.$order.lyrics.length === this.$maxLyricsPerOrder) {
+      throw new HTTPException(400, {
+        message: 'LYRICS_GENERATION_LIMIT_REACHED',
+      });
+    }
+
     const availableUpdatableLyrics = this.$order.lyrics.find(
       (lyric) => lyric.lyricsId === payload.lyricsId
     );
@@ -239,9 +283,8 @@ class Order {
     }
     if (!generatedLyrics)
       throw new HTTPException(400, { message: 'LYRICS_GENERATION_EMPTY' });
-    // TODO: Récupérer le systemPromt + musicPrompt + answers
 
-    return await this.$storeGeneratedLyrics(generatedLyrics);
+    return await this.$storeGeneratedLyrics(generatedLyrics, true);
   }
 
   get order() {

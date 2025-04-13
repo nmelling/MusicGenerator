@@ -7,7 +7,7 @@
         <span v-if="order.validated_at">Date de validation de la commande: {{ order.validated_at }}</span>
         <span v-else>Commande non validée</span>
       </div>
-      <div>Modifications restantes: {{ 3 - order.modificationCounter }}</div>
+      <div>Modifications restantes: {{ 3 - order.lyrics.length }}</div>
     </header>
     <section>
       <h3>Paroles</h3>

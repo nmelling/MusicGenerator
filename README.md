@@ -37,6 +37,12 @@ Front
 5. Appel API Suno pour génération de la musique
 6. Transmission de la musique générée à l'utilisateur
 
+## Todo list
+
+- Retirer les colonnes `deprecated` et se baser sur la colonne `deletedAt`
+- Alimenter le readme pour le setup du projet
+- Faire un script setup pour un lancement rapide
+
 
 
 

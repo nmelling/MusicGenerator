@@ -26,7 +26,6 @@ export const order = orderSchema.table(
       .notNull()
       .references(() => musicCategory.categoryId),
     email: varchar({ length: 255 }).notNull(),
-    modificationCounter: integer().notNull().default(0),
     validated_at: timestamp(),
     ...timestamps,
   },

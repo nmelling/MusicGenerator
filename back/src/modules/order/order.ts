@@ -30,6 +30,9 @@ const routes = new Hono()
         );
       } catch (error) {
         // TODO: logger
+        if (error instanceof HTTPException) {
+          throw error;
+        }
         throw new HTTPException(400, { message: 'LYRICS_GENERATION_ERROR' });
       }
 
